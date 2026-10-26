@@ -466,10 +466,10 @@ export default function App() {
             </div>
           )}
 
-          {/* 2. ԿՈՆՏԱԿՏՆԵՐ */}
+          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ (Աշխատում է և՛ սեփականատիրոջ, և՛ հանրային դիտման համար) */}
           {activeTab === 'contact' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {!isPublicView ? (
+              {!isPublicView && (
                 <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   <input
                     type="text"
@@ -524,25 +524,57 @@ export default function App() {
                     {t.updateBtn}
                   </button>
                 </form>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    {profile.phone && (
-                      <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                        <Phone size={18} color="var(--primary-color)" /> {t.callLabel}: {profile.phone}
-                      </a>
-                    )}
-                    {profile.telegram && (
-                      <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
-                      </a>
-                    )}
-                    {profile.whatsapp && (
-                      <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                        <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
-                      </a>
-                    )}
-                  </div>
+              )}
+
+              {/* Հանրային տեսքով կամ լրացված կոնտակտների ցուցադրություն */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  {profile.phone ? (
+                    <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                      <Phone size={18} color="var(--primary-color)" /> {t.callLabel}: {profile.phone}
+                    </a>
+                  ) : isPublicView && <span style={{ opacity: 0.6, fontSize: '13px' }}>Հեռախոսահամար նշված չէ</span>}
+
+                  {profile.telegram && (
+                    <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                      <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
+                    </a>
+                  )}
+                  {profile.whatsapp && (
+                    <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                      <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
+                    </a>
+                  )}
+                  {profile.instagram && (
+                    <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                      <Globe size={18} color="var(--primary-color)" /> Instagram
+                    </a>
+                  )}
+                  {profile.linkedin && (
+                    <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                      <Share2 size={18} color="var(--primary-color)" /> LinkedIn
+                    </a>
+                  )}
+                  {profile.facebook && (
+                    <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                      <Globe size={18} color="var(--primary-color)" /> Facebook
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Google Maps Քարտեզ */}
+              {profile.map_url && (
+                <div className="glass-input" style={{ overflow: 'hidden', height: '250px', borderRadius: '16px', marginTop: '10px', padding: 0 }}>
+                  <iframe
+                    src={profile.map_url.includes('src="') ? profile.map_url.split('src="')[1].split('"')[0] : profile.map_url}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    title="Location Map"
+                  ></iframe>
                 </div>
               )}
             </div>
@@ -609,7 +641,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ (Վերականգնված է ջնջելու հնարավորությունը) */}
+          {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ */}
           {activeTab === 'certificates' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
