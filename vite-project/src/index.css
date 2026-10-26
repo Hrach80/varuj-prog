@@ -1,0 +1,110 @@
+:root {
+  --bg-color: #e8f4f8;
+  --text-color: #1e3a8a;
+  --primary-color: #0ea5e9;
+  --primary-glow: rgba(14, 165, 233, 0.4);
+  --box-shadow: 8px 8px 16px #c4d7e0, -8px -8px 16px #ffffff;
+  --box-inset: inset 4px 4px 8px #c4d7e0, inset -4px -4px 8px #ffffff;
+}
+
+[data-theme='dark'] {
+  --bg-color: #0f172a;
+  --text-color: #e2e8f0;
+  --primary-color: #38bdf8;
+  --primary-glow: rgba(56, 189, 248, 0.4);
+  --box-shadow: 8px 8px 16px #090e17, -8px -8px 17px #15203d;
+  --box-inset: inset 4px 4px 8px #090e17, inset -4px -4px 8px #15203d;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.neumorph-box {
+  background: var(--bg-color);
+  box-shadow: var(--box-shadow);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.neumorph-inset {
+  background: var(--bg-color);
+  box-shadow: var(--box-inset);
+  color: var(--text-color);
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.neumorph-inset:focus {
+  box-shadow: var(--box-inset), 0 0 10px var(--primary-glow);
+}
+
+.neumorph-btn {
+  background: var(--bg-color);
+  box-shadow: var(--box-shadow);
+  color: var(--text-color);
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.neumorph-btn:hover {
+  color: var(--primary-color);
+  box-shadow: 6px 6px 12px #c4d7e0, -6px -6px 12px #ffffff, 0 0 12px var(--primary-glow);
+}
+
+.neumorph-btn:active,
+.neumorph-btn.active {
+  box-shadow: var(--box-inset);
+  color: var(--primary-color);
+}
+
+/* ECG Բեռնման Անիմացիա */
+.ecg-loader {
+  position: relative;
+  width: 150px;
+  height: 50px;
+  margin: 20px auto;
+}
+
+.ecg-line {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: ecgAnim 1.8s infinite linear;
+}
+
+@keyframes ecgAnim {
+  0% {
+    stroke-dashoffset: 300;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -300;
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-container {
+    padding: 10px !important;
+    margin: 10px auto !important;
+    width: 95% !important;
+  }
+}
