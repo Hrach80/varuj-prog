@@ -1,71 +1,101 @@
 :root {
-  --bg-color: #e8f4f8;
-  --text-color: #1e3a8a;
-  --primary-color: #0ea5e9;
-  --primary-glow: rgba(14, 165, 233, 0.4);
-  --box-shadow: 8px 8px 16px #c4d7e0, -8px -8px 16px #ffffff;
-  --box-inset: inset 4px 4px 8px #c4d7e0, inset -4px -4px 8px #ffffff;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #042f2e 100%);
+  --card-bg: rgba(15, 23, 42, 0.75);
+  --card-border: rgba(20, 184, 166, 0.3);
+  --text-color: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary-color: #14b8a6;
+  --primary-glow: rgba(20, 184, 166, 0.6);
+  --input-bg: rgba(30, 41, 59, 0.8);
 }
 
-[data-theme='dark'] {
-  --bg-color: #0f172a;
-  --text-color: #e2e8f0;
-  --primary-color: #38bdf8;
-  --primary-glow: rgba(56, 189, 248, 0.4);
-  --box-shadow: 8px 8px 16px #090e17, -8px -8px 17px #15203d;
-  --box-inset: inset 4px 4px 8px #090e17, inset -4px -4px 8px #15203d;
+[data-theme='light'] {
+  --bg-gradient: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #99f6e4 100%);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(20, 184, 166, 0.3);
+  --text-color: #0f172a;
+  --text-muted: #64748b;
+  --primary-color: #0d9488;
+  --primary-glow: rgba(13, 148, 136, 0.4);
+  --input-bg: rgba(241, 245, 249, 0.9);
 }
 
 body {
-  background-color: var(--bg-color);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
-.neumorph-box {
-  background: var(--bg-color);
-  box-shadow: var(--box-shadow);
-  border-radius: 20px;
+/* Glassmorphism & Neon Glow Քարտեր */
+.glass-box {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 20px rgba(20, 184, 166, 0.15);
   transition: all 0.3s ease;
 }
 
-.neumorph-inset {
-  background: var(--bg-color);
-  box-shadow: var(--box-inset);
+.glass-box:hover {
+  box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.4), 0 0 25px var(--primary-glow);
+  border-color: var(--primary-color);
+}
+
+/* Մուտքագրման դաշտեր */
+.glass-input {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
   color: var(--text-color);
-  border-radius: 12px;
-  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
   outline: none;
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.neumorph-inset:focus {
-  box-shadow: var(--box-inset), 0 0 10px var(--primary-glow);
+.glass-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px var(--primary-glow);
 }
 
-.neumorph-btn {
-  background: var(--bg-color);
-  box-shadow: var(--box-shadow);
-  color: var(--text-color);
-  border-radius: 12px;
+/* Նեոնային Կոճակներ */
+.neon-btn {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  color: #ffffff;
   border: none;
-  cursor: pointer;
+  border-radius: 14px;
+  padding: 12px 20px;
   font-weight: 600;
-  transition: all 0.25s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.neumorph-btn:hover {
-  color: var(--primary-color);
-  box-shadow: 6px 6px 12px #c4d7e0, -6px -6px 12px #ffffff, 0 0 12px var(--primary-glow);
+.neon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px var(--primary-glow);
+  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
 }
 
-.neumorph-btn:active,
-.neumorph-btn.active {
-  box-shadow: var(--box-inset);
-  color: var(--primary-color);
+.neon-btn:active {
+  transform: translateY(0);
+}
+
+.neon-btn.active {
+  background: #0f766e;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* ECG Բեռնման Անիմացիա */
@@ -101,10 +131,24 @@ body {
   }
 }
 
+/* 📱 Լիարժեք Responsive Կարգավորումներ Հեռախոսների և Պլանշետների համար */
 @media (max-width: 768px) {
-  .responsive-container {
-    padding: 10px !important;
-    margin: 10px auto !important;
-    width: 95% !important;
+  .app-container {
+    padding: 12px !important;
+    max-width: 100% !important;
+  }
+
+  .tabs-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .glass-box {
+    padding: 18px !important;
+    border-radius: 18px !important;
+  }
+
+  h1 {
+    font-size: 20px !important;
   }
 }

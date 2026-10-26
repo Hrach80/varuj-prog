@@ -3,7 +3,8 @@ import { supabase } from './supabaseClient';
 import { translations } from './translations';
 import {
   Stethoscope, Phone, Send, MessageCircle, MapPin, BookOpen,
-  Award, Moon, Sun, LogOut, Camera, Upload, Trash2, ExternalLink, FileText
+  Award, Moon, Sun, LogOut, Camera, Upload, Trash2, ExternalLink,
+  FileText, Globe, Share2
 } from 'lucide-react';
 import './index.css';
 
@@ -15,7 +16,7 @@ export default function App() {
   const [isSignUp, setIsSignUp] = useState(false);
 
   const [lang, setLang] = useState('am');
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
   const t = translations[lang];
 
   const [activeTab, setActiveTab] = useState('profile');
@@ -30,6 +31,9 @@ export default function App() {
     phone: '',
     telegram: '',
     whatsapp: '',
+    instagram: '',
+    linkedin: '',
+    facebook: '',
     map_url: '',
     avatar_url: '',
     library: [],
@@ -37,17 +41,11 @@ export default function App() {
   });
 
   useEffect(() => {
-    const currentHour = new Date().getHours();
-    if (currentHour >= 20 || currentHour < 7) {
-      setTheme('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  }, []);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   useEffect(() => {
@@ -232,33 +230,34 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '20px', maxWidth: '850px', margin: '0 auto' }}>
+    <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '20px', maxWidth: '850px', margin: '0 auto', boxSizing: 'border-box' }}>
 
+      {/* Վերին վահանակ */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
-        <button onClick={toggleTheme} className="neumorph-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button onClick={toggleTheme} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px' }}>
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} {theme === 'light' ? 'Գիշեր' : 'Ցերեկ'}
         </button>
         <select
           value={lang}
           onChange={(e) => setLang(e.target.value)}
-          className="neumorph-inset"
-          style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer' }}
+          className="glass-input"
+          style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer', width: 'auto' }}
         >
-          <option value="am">🇦🇲 Հայ</option>
-          <option value="en">🇬🇧 Eng</option>
-          <option value="ru">🇷🇺 Рус</option>
+          <option value="am" style={{ background: '#0f172a', color: '#fff' }}>🇦🇲 Հայ</option>
+          <option value="en" style={{ background: '#0f172a', color: '#fff' }}>🇬🇧 Eng</option>
+          <option value="ru" style={{ background: '#0f172a', color: '#fff' }}>🇷🇺 Рус</option>
         </select>
         {session && !isPublicView && (
-          <button onClick={() => supabase.auth.signOut()} className="neumorph-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={() => supabase.auth.signOut()} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
             <LogOut size={16} /> {t.logout}
           </button>
         )}
       </div>
 
       {!session && !isPublicView ? (
-        <div className="neumorph-box" style={{ padding: '30px', maxWidth: '400px', margin: '40px auto', textAlign: 'center' }}>
-          <h2 style={{ marginBottom: '20px', color: 'var(--primary-color)' }}>
-            {isSignUp ? t.signUpTitle : t.loginTitle}
+        <div className="glass-box" style={{ padding: '30px', maxWidth: '400px', width: '100%', margin: '40px auto', textAlign: 'center', boxSizing: 'border-box' }}>
+          <h2 style={{ marginBottom: '20px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <Stethoscope size={24} /> {isSignUp ? t.signUpTitle : t.loginTitle}
           </h2>
           <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <input
@@ -266,8 +265,7 @@ export default function App() {
               placeholder={t.emailPlaceholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="neumorph-inset"
-              style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
+              className="glass-input"
               required
             />
             <input
@@ -275,23 +273,22 @@ export default function App() {
               placeholder={t.passwordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="neumorph-inset"
-              style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
+              className="glass-input"
               required
             />
-            <button type="submit" className="neumorph-btn" style={{ padding: '12px', fontWeight: 'bold' }}>
+            <button type="submit" className="neon-btn" style={{ padding: '12px', width: '100%', justifyContent: 'center' }}>
               {isSignUp ? t.signUpBtn : t.loginBtn}
             </button>
           </form>
-          <p onClick={() => setIsSignUp(!isSignUp)} style={{ marginTop: '20px', cursor: 'pointer', fontSize: '13px', opacity: 0.8 }}>
+          <p onClick={() => setIsSignUp(!isSignUp)} style={{ marginTop: '20px', cursor: 'pointer', fontSize: '13px', opacity: 0.8, color: 'var(--primary-color)' }}>
             {isSignUp ? 'Արդեն ունե՞ք հաշիվ: Մուտք գործեք' : "Չունե՞ք հաշիվ: Գրանցվեք"}
           </p>
         </div>
       ) : (
-        <div className="neumorph-box" style={{ padding: '30px', width: '100%', boxSizing: 'border-box' }}>
+        <div className="glass-box" style={{ padding: '30px', width: '100%', boxSizing: 'border-box' }}>
 
           {session && !isPublicView && (
-            <div className="neumorph-inset" style={{ padding: '12px 15px', marginBottom: '20px', fontSize: '13px', wordBreak: 'break-all' }}>
+            <div className="glass-input" style={{ padding: '12px 15px', marginBottom: '20px', fontSize: '13px', wordBreak: 'break-all' }}>
               <strong>{t.shareLinkTitle}</strong> <br />
               <a href={`${window.location.origin}?user=${session.user.id}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)' }}>
                 {window.location.origin}?user={session.user.id}
@@ -300,17 +297,17 @@ export default function App() {
           )}
 
           {/* Ներդիրներ (Tabs) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '30px' }}>
-            <button onClick={() => setActiveTab('profile')} className={`neumorph-btn ${activeTab === 'profile' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+          <div className="tabs-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '30px' }}>
+            <button onClick={() => setActiveTab('profile')} className={`neon-btn ${activeTab === 'profile' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
               <Stethoscope size={18} /> {t.tabProfile}
             </button>
-            <button onClick={() => setActiveTab('contact')} className={`neumorph-btn ${activeTab === 'contact' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+            <button onClick={() => setActiveTab('contact')} className={`neon-btn ${activeTab === 'contact' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
               <MapPin size={18} /> {t.tabContact}
             </button>
-            <button onClick={() => setActiveTab('library')} className={`neumorph-btn ${activeTab === 'library' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+            <button onClick={() => setActiveTab('library')} className={`neon-btn ${activeTab === 'library' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
               <BookOpen size={18} /> {t.tabLibrary}
             </button>
-            <button onClick={() => setActiveTab('certificates')} className={`neumorph-btn ${activeTab === 'certificates' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+            <button onClick={() => setActiveTab('certificates')} className={`neon-btn ${activeTab === 'certificates' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
               <Award size={18} /> {t.tabCertificates}
             </button>
           </div>
@@ -320,7 +317,7 @@ export default function App() {
             <div>
               <div style={{ textAlign: 'center', marginBottom: '25px' }}>
                 <div style={{ position: 'relative', width: '100px', height: '100px', margin: '0 auto 15px' }}>
-                  <div className="neumorph-inset" style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="glass-input" style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
                     {profile.avatar_url ? (
                       <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
@@ -328,7 +325,7 @@ export default function App() {
                     )}
                   </div>
                   {session && !isPublicView && (
-                    <label style={{ position: 'absolute', bottom: '0', right: '0', background: 'var(--bg-color)', borderRadius: '50%', padding: '6px', cursor: 'pointer', boxShadow: 'var(--box-shadow)' }}>
+                    <label style={{ position: 'absolute', bottom: '0', right: '0', background: 'var(--primary-color)', borderRadius: '50%', padding: '8px', cursor: 'pointer', boxShadow: '0 0 10px var(--primary-glow)', color: '#fff', display: 'flex' }}>
                       <Camera size={16} />
                       <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
                     </label>
@@ -346,38 +343,35 @@ export default function App() {
                     placeholder="Անուն Ազգանուն (օր. Վարուժան Վաղարշակյան)"
                     value={profile.full_name || ''}
                     onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                    className="neumorph-inset"
-                    style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
+                    className="glass-input"
                   />
                   <input
                     type="text"
                     placeholder="Մասնագիտություն / Կոչում (օր. Բժշկական ֆակուլտետի ուսանող)"
                     value={profile.specialty || ''}
                     onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
-                    className="neumorph-inset"
-                    style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
+                    className="glass-input"
                   />
                   <input
                     type="text"
                     placeholder="Ուսումնական հաստատություն (օր. ՄՊՀ Անվան Բժշկական Համալսարան)"
                     value={profile.university || ''}
                     onChange={(e) => setProfile({ ...profile, university: e.target.value })}
-                    className="neumorph-inset"
-                    style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
+                    className="glass-input"
                   />
                   <textarea
                     placeholder="Գրեք ձեր գործունեության, հաջողությունների և հետաքրքրությունների մասին..."
                     value={profile.bio || ''}
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    className="neumorph-inset"
-                    style={{ padding: '12px', width: '100%', height: '90px', resize: 'none', boxSizing: 'border-box' }}
+                    className="glass-input"
+                    style={{ height: '90px', resize: 'none' }}
                   />
-                  <button type="submit" className="neumorph-btn" style={{ padding: '14px', fontWeight: 'bold' }}>
+                  <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
                     {t.updateBtn}
                   </button>
                 </form>
               ) : (
-                <div className="neumorph-inset" style={{ padding: '20px', lineHeight: '1.6' }}>
+                <div className="glass-input" style={{ padding: '20px', lineHeight: '1.6' }}>
                   <p><strong>{t.bioLabel}:</strong></p>
                   <p>{profile.bio || 'Տեղեկություն չկա...'}</p>
                 </div>
@@ -385,79 +379,113 @@ export default function App() {
             </div>
           )}
 
-          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՔԱՐՏԵԶ */}
+          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ */}
           {activeTab === 'contact' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {!isPublicView ? (
                 <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Phone size={20} color="var(--primary-color)" />
-                    <input
-                      type="text"
-                      placeholder="Հեռախոսահամար (օր. +37494395221)"
-                      value={profile.phone || ''}
-                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                      className="neumorph-inset"
-                      style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Send size={20} color="var(--primary-color)" />
-                    <input
-                      type="text"
-                      placeholder="Telegram օգտանուն (առանց @-ի, օր. hrach_v)"
-                      value={profile.telegram || ''}
-                      onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
-                      className="neumorph-inset"
-                      style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <MessageCircle size={20} color="var(--primary-color)" />
-                    <input
-                      type="text"
-                      placeholder="WhatsApp համար (օր. +37494395221)"
-                      value={profile.whatsapp || ''}
-                      onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
-                      className="neumorph-inset"
-                      style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    placeholder="Հեռախոսահամար (օր. +37494395221)"
+                    value={profile.phone || ''}
+                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                    className="glass-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Telegram օգտանուն (առանց @-ի, օր. hrach_v)"
+                    value={profile.telegram || ''}
+                    onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
+                    className="glass-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="WhatsApp համար (օր. +37494395221)"
+                    value={profile.whatsapp || ''}
+                    onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
+                    className="glass-input"
+                  />
+
+                  {/* Սոցցանցեր */}
+                  <input
+                    type="text"
+                    placeholder="Instagram հղում կամ օգտանուն"
+                    value={profile.instagram || ''}
+                    onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                    className="glass-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="LinkedIn հղում"
+                    value={profile.linkedin || ''}
+                    onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
+                    className="glass-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Facebook հղում"
+                    value={profile.facebook || ''}
+                    onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
+                    className="glass-input"
+                  />
+
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
-                      <MapPin size={20} color="var(--primary-color)" />
-                      <span style={{ fontSize: '13px', opacity: 0.8 }}>Google Maps (Embed SRC հղում)</span>
-                    </div>
                     <input
                       type="text"
-                      placeholder="Մուտքագրեք Google Maps-ի iframe src հղումը..."
+                      placeholder="Մուտքագրեք Google Maps-ի հղումը կամ iframe կոդը..."
                       value={profile.map_url || ''}
                       onChange={(e) => setProfile({ ...profile, map_url: e.target.value })}
-                      className="neumorph-inset"
-                      style={{ padding: '12px', width: '100%', boxSizing: 'border-box' }}
+                      className="glass-input"
                     />
-                    <small style={{ display: 'block', marginTop: '5px', opacity: 0.6, fontSize: '11px' }}>
-                      💡 Ինչպես ստանալ. Google Maps-ում ընտրեք վայրը -&gt; Share -&gt; Embed a map -&gt; պատճենեք միայն src="..." մեջի հղումը։
-                    </small>
+                    <div style={{ marginTop: '8px', padding: '10px', background: 'rgba(20, 184, 166, 0.1)', border: '1px solid var(--card-border)', borderRadius: '10px', fontSize: '12px', lineHeight: '1.5' }}>
+                      <strong>📍 Google Maps-ի տեղադրում.</strong> Կարող եք տեղադրել ինչպես մաքուր `src` հղումը, այնպես էլ ամբողջական `iframe` կոդը:
+                    </div>
                   </div>
-                  <button type="submit" className="neumorph-btn" style={{ padding: '14px', fontWeight: 'bold' }}>
+                  <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
                     {t.updateBtn}
                   </button>
                 </form>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div className="neumorph-inset" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {profile.phone && <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Phone size={18} color="var(--primary-color)" /> <strong>Հեռախոս:</strong> {profile.phone}</p>}
-                    {profile.telegram && <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Send size={18} color="var(--primary-color)" /> <strong>Telegram:</strong> <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)' }}>@{profile.telegram}</a></p>}
-                    {profile.whatsapp && <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><MessageCircle size={18} color="var(--primary-color)" /> <strong>WhatsApp:</strong> <a href={`https://wa.me/${profile.whatsapp}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)' }}>{profile.whatsapp}</a></p>}
+                  <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    {profile.phone && (
+                      <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                        <Phone size={18} color="var(--primary-color)" /> Զանգահարել: {profile.phone}
+                      </a>
+                    )}
+                    {profile.telegram && (
+                      <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
+                      </a>
+                    )}
+                    {profile.whatsapp && (
+                      <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
+                      </a>
+                    )}
+                    {profile.instagram && (
+                      <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Globe size={18} color="var(--primary-color)" /> Instagram
+                      </a>
+                    )}
+                    {profile.linkedin && (
+                      <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Share2 size={18} color="var(--primary-color)" /> LinkedIn
+                      </a>
+                    )}
+                    {profile.facebook && (
+                      <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Globe size={18} color="var(--primary-color)" /> Facebook
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
 
               {profile.map_url && (
-                <div className="neumorph-inset" style={{ overflow: 'hidden', height: '250px', borderRadius: '15px' }}>
+                <div className="glass-input" style={{ overflow: 'hidden', height: '250px', borderRadius: '16px', marginTop: '15px', padding: 0 }}>
                   <iframe
-                    src={profile.map_url}
+                    src={profile.map_url.includes('src="') ? profile.map_url.split('src="')[1].split('"')[0] : profile.map_url}
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -473,12 +501,12 @@ export default function App() {
           {/* 3. ԳՐԱԴԱՐԱՆ */}
           {activeTab === 'library' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3>{t.tabLibrary}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                <h3 style={{ margin: 0 }}>{t.tabLibrary}</h3>
                 {session && !isPublicView && (
-                  <label className="neumorph-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                    <Upload size={16} /> Ներբեռնել նյութ
-                    <input type="file" onChange={(e) => handleFileUpload(e, 'library')} style={{ display: 'none' }} />
+                  <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                    <Upload size={16} /> Ներբեռնել նյութ (PDF/Գիրք)
+                    <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={(e) => handleFileUpload(e, 'library')} style={{ display: 'none' }} />
                   </label>
                 )}
               </div>
@@ -488,16 +516,16 @@ export default function App() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {profile.library.map((item, idx) => (
-                    <div key={idx} className="neumorph-inset" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div key={idx} className="glass-input" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '10px', wordBreak: 'break-all' }}>
                         <FileText size={18} color="var(--primary-color)" /> {item.name}
                       </span>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <a href={item.url} target="_blank" rel="noreferrer" className="neumorph-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <ExternalLink size={14} /> Բացել
+                        <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <ExternalLink size={14} /> Բացել / Ներբեռնել PDF
                         </a>
                         {session && !isPublicView && (
-                          <button onClick={() => handleDeleteItem(idx, 'library')} className="neumorph-btn" style={{ padding: '6px', color: '#ef4444' }}>
+                          <button onClick={() => handleDeleteItem(idx, 'library')} className="neon-btn" style={{ padding: '6px 10px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
                             <Trash2 size={16} />
                           </button>
                         )}
@@ -512,12 +540,12 @@ export default function App() {
           {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ */}
           {activeTab === 'certificates' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3>{t.tabCertificates}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                <h3 style={{ margin: 0 }}>{t.tabCertificates}</h3>
                 {session && !isPublicView && (
-                  <label className="neumorph-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                    <Upload size={16} /> Ավելացնել սերտիֆիկատ
-                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'certificates')} style={{ display: 'none' }} />
+                  <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                    <Upload size={16} /> Ավելացնել սերտիֆիկատ (PDF/Նկար)
+                    <input type="file" accept="image/*,.pdf" onChange={(e) => handleFileUpload(e, 'certificates')} style={{ display: 'none' }} />
                   </label>
                 )}
               </div>
@@ -526,22 +554,32 @@ export default function App() {
                 <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '15px' }}>
-                  {profile.certificates.map((cert, idx) => (
-                    <div key={idx} className="neumorph-inset" style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-                      <img src={cert.url} alt="Cert" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />
-                      <span style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</span>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <a href={cert.url} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
-                          <ExternalLink size={12} /> Մեծացնել
-                        </a>
-                        {session && !isPublicView && (
-                          <button onClick={() => handleDeleteItem(idx, 'certificates')} className="neumorph-btn" style={{ padding: '4px', color: '#ef4444' }}>
-                            <Trash2 size={14} />
-                          </button>
+                  {profile.certificates.map((cert, idx) => {
+                    const isPdf = cert.name.toLowerCase().endsWith('.pdf');
+                    return (
+                      <div key={idx} className="glass-input" style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
+                        {isPdf ? (
+                          <div style={{ width: '100%', height: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(20, 184, 166, 0.1)', borderRadius: '10px', gap: '5px' }}>
+                            <FileText size={36} color="var(--primary-color)" />
+                            <span style={{ fontSize: '11px', fontWeight: 'bold' }}>PDF Փաստաթուղթ</span>
+                          </div>
+                        ) : (
+                          <img src={cert.url} alt="Cert" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '10px' }} />
                         )}
+                        <span style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <a href={cert.url} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
+                            <ExternalLink size={12} /> Դիտել
+                          </a>
+                          {session && !isPublicView && (
+                            <button onClick={() => handleDeleteItem(idx, 'certificates')} className="neon-btn" style={{ padding: '4px 8px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
