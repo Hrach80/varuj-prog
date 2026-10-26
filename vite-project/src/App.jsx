@@ -4,7 +4,7 @@ import { translations } from './translations';
 import {
   Stethoscope, Phone, Send, MessageCircle, MapPin, BookOpen,
   Award, Moon, Sun, LogOut, Camera, Upload, Trash2, ExternalLink,
-  FileText, Globe, Share2
+  FileText, Globe, Share2, Copy, Check
 } from 'lucide-react';
 import './index.css';
 
@@ -22,6 +22,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('profile');
   const [publicUserId, setPublicUserId] = useState(null);
   const [isPublicView, setIsPublicView] = useState(false);
+
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const [profile, setProfile] = useState({
     full_name: '',
@@ -216,6 +219,12 @@ export default function App() {
     setLoading(false);
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -228,6 +237,8 @@ export default function App() {
       </div>
     );
   }
+
+  const publicLink = session ? `${window.location.origin}?user=${session.user.id}` : '';
 
   return (
     <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '20px', maxWidth: '850px', margin: '0 auto', boxSizing: 'border-box' }}>
@@ -287,53 +298,113 @@ export default function App() {
       ) : (
         <div className="glass-box" style={{ padding: '30px', width: '100%', boxSizing: 'border-box' }}>
 
+          {/* 🌟 Կիսվելու կոճակ հանրային հղման համար */}
           {session && !isPublicView && (
-            <div className="glass-input" style={{ padding: '12px 15px', marginBottom: '20px', fontSize: '13px', wordBreak: 'break-all' }}>
-              <strong>{t.shareLinkTitle}</strong> <br />
-              <a href={`${window.location.origin}?user=${session.user.id}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)' }}>
-                {window.location.origin}?user={session.user.id}
-              </a>
+            <div style={{ marginBottom: '25px' }}>
+              <button
+                onClick={() => setShowShareModal(!showShareModal)}
+                className="neon-btn"
+                style={{ width: '100%', justifyContent: 'center', padding: '12px', gap: '10px', fontSize: '14px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
+              >
+                <Share2 size={18} /> 🔗 Կիսվել Իմ Հանրային Պրոֆիլով
+              </button>
+
+              <div style={{
+                maxHeight: showShareModal ? '220px' : '0px',
+                overflow: 'hidden',
+                transition: 'max-height 0.4s ease, opacity 0.4s ease, margin 0.4s ease',
+                opacity: showShareModal ? 1 : 0,
+                marginTop: showShareModal ? '12px' : '0px'
+              }}>
+                <div className="glass-input" style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '15px' }}>
+                  <span style={{ fontSize: '12px', opacity: 0.8 }}>{t.shareLinkTitle}</span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      readOnly
+                      value={publicLink}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '12px', background: 'rgba(0,0,0,0.2)' }}
+                    />
+                    <button
+                      onClick={() => copyToClipboard(publicLink)}
+                      className="neon-btn"
+                      style={{ padding: '8px 14px', fontSize: '12px', whiteSpace: 'nowrap' }}
+                    >
+                      {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Պատճենված է' : 'Պատճենել'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '5px', flexWrap: 'wrap' }}>
+                    <a
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Իմ բժշկական պորտֆոլիոն՝ ' + publicLink)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="neon-btn"
+                      style={{ padding: '6px 12px', fontSize: '12px', background: '#25D366' }}
+                    >
+                      WhatsApp
+                    </a>
+                    <a
+                      href={`https://t.me/share/url?url=${encodeURIComponent(publicLink)}&text=${encodeURIComponent('Իմ բժշկական պորտֆոլիոն')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="neon-btn"
+                      style={{ padding: '6px 12px', fontSize: '12px', background: '#229ED9' }}
+                    >
+                      Telegram
+                    </a>
+                    <a
+                      href={`mailto:?subject=Իմ բժշկական պորտֆոլիոն&body=${encodeURIComponent(publicLink)}`}
+                      className="neon-btn"
+                      style={{ padding: '6px 12px', fontSize: '12px', background: '#ea4335' }}
+                    >
+                      Email
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Ներդիրներ (Tabs) */}
-          <div className="tabs-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '30px' }}>
-            <button onClick={() => setActiveTab('profile')} className={`neon-btn ${activeTab === 'profile' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-              <Stethoscope size={18} /> {t.tabProfile}
+          <div className="tabs-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '30px' }}>
+            <button onClick={() => setActiveTab('profile')} className={`neon-btn ${activeTab === 'profile' ? 'active' : ''}`} style={{ padding: '8px 10px', fontSize: '12px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <Stethoscope size={16} /> <span>{t.tabProfile}</span>
             </button>
-            <button onClick={() => setActiveTab('contact')} className={`neon-btn ${activeTab === 'contact' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-              <MapPin size={18} /> {t.tabContact}
+            <button onClick={() => setActiveTab('contact')} className={`neon-btn ${activeTab === 'contact' ? 'active' : ''}`} style={{ padding: '8px 10px', fontSize: '12px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <MapPin size={16} /> <span>{t.tabContact}</span>
             </button>
-            <button onClick={() => setActiveTab('library')} className={`neon-btn ${activeTab === 'library' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-              <BookOpen size={18} /> {t.tabLibrary}
+            <button onClick={() => setActiveTab('library')} className={`neon-btn ${activeTab === 'library' ? 'active' : ''}`} style={{ padding: '8px 10px', fontSize: '12px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <BookOpen size={16} /> <span>{t.tabLibrary}</span>
             </button>
-            <button onClick={() => setActiveTab('certificates')} className={`neon-btn ${activeTab === 'certificates' ? 'active' : ''}`} style={{ padding: '12px 5px', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-              <Award size={18} /> {t.tabCertificates}
+            <button onClick={() => setActiveTab('certificates')} className={`neon-btn ${activeTab === 'certificates' ? 'active' : ''}`} style={{ padding: '8px 10px', fontSize: '12px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <Award size={16} /> <span>{t.tabCertificates}</span>
             </button>
           </div>
 
-          {/* 1. ՀԻՄՆԱԿԱՆ ԲԱԺԻՆ */}
+          {/* 1. ՀԻՄՆԱԿԱՆ ԲԱԺԻՆ - Առանց ռամկայի, միայն թափանցիկ նկար և լույսային էֆեկտներ */}
           {activeTab === 'profile' && (
             <div>
-              <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-                <div style={{ position: 'relative', width: '100px', height: '100px', margin: '0 auto 15px' }}>
-                  <div className="glass-input" style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
-                    {profile.avatar_url ? (
-                      <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <Stethoscope size={40} style={{ opacity: 0.6 }} />
-                    )}
-                  </div>
+              <div style={{ textAlign: 'center', marginBottom: '30px', padding: '25px 15px', background: 'rgba(20, 184, 166, 0.03)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
+                <div style={{ position: 'relative', width: '220px', height: '260px', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Profile" className="pure-transparent-img" />
+                  ) : (
+                    <div className="glass-input" style={{ width: '100%', height: '100%', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: 0.6 }}>
+                      <Stethoscope size={55} />
+                      <span style={{ fontSize: '13px' }}>Նկար չկա</span>
+                    </div>
+                  )}
                   {session && !isPublicView && (
-                    <label style={{ position: 'absolute', bottom: '0', right: '0', background: 'var(--primary-color)', borderRadius: '50%', padding: '8px', cursor: 'pointer', boxShadow: '0 0 10px var(--primary-glow)', color: '#fff', display: 'flex' }}>
-                      <Camera size={16} />
+                    <label style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'var(--primary-color)', borderRadius: '50%', padding: '10px', cursor: 'pointer', boxShadow: '0 0 15px var(--primary-glow)', color: '#fff', display: 'flex', zIndex: 5 }}>
+                      <Camera size={18} />
                       <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
                     </label>
                   )}
                 </div>
-                <h1 style={{ fontSize: '24px', margin: '10px 0 5px' }}>{profile.full_name || 'Բժշկական Մասնագետ'}</h1>
-                <p style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '14px' }}>{profile.specialty || 'Մասնագիտություն չկա'}</p>
-                <p style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '13px' }}>{profile.university || 'Բուհ չկա նշված'}</p>
+                <h1 style={{ fontSize: '28px', margin: '10px 0 8px', fontWeight: '700', letterSpacing: '0.5px' }}>{profile.full_name || 'Բժշկական Մասնագետ'}</h1>
+                <p style={{ fontStyle: 'italic', opacity: 0.9, fontSize: '15px', marginBottom: '6px' }}>{profile.specialty || 'Մասնագիտություն չկա'}</p>
+                <p style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px' }}>{profile.university || 'Բուհ չկա նշված'}</p>
               </div>
 
               {!isPublicView ? (
@@ -364,7 +435,7 @@ export default function App() {
                     value={profile.bio || ''}
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                     className="glass-input"
-                    style={{ height: '90px', resize: 'none' }}
+                    style={{ height: '100px', resize: 'none' }}
                   />
                   <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
                     {t.updateBtn}
@@ -406,7 +477,6 @@ export default function App() {
                     className="glass-input"
                   />
 
-                  {/* Սոցցանցեր */}
                   <input
                     type="text"
                     placeholder="Instagram հղում կամ օգտանուն"
@@ -459,7 +529,7 @@ export default function App() {
                       </a>
                     )}
                     {profile.whatsapp && (
-                      <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                      <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
                         <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
                       </a>
                     )}
@@ -520,9 +590,29 @@ export default function App() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '10px', wordBreak: 'break-all' }}>
                         <FileText size={18} color="var(--primary-color)" /> {item.name}
                       </span>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <ExternalLink size={14} /> Բացել / Ներբեռնել PDF
+                          <ExternalLink size={14} /> Բացել / Ներբեռնել
+                        </a>
+                        <a
+                          href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Ծանոթացեք այս նյութին՝ ' + item.name + ' - ' + item.url)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="neon-btn"
+                          style={{ padding: '6px 10px', fontSize: '12px', background: '#25D366' }}
+                          title="Կիսվել WhatsApp-ով"
+                        >
+                          <Share2 size={14} /> WhatsApp
+                        </a>
+                        <a
+                          href={`https://t.me/share/url?url=${encodeURIComponent(item.url)}&text=${encodeURIComponent('Ծանոթացեք այս նյութին՝ ' + item.name)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="neon-btn"
+                          style={{ padding: '6px 10px', fontSize: '12px', background: '#229ED9' }}
+                          title="Կիսվել Telegram-ով"
+                        >
+                          <Send size={14} /> Telegram
                         </a>
                         {session && !isPublicView && (
                           <button onClick={() => handleDeleteItem(idx, 'library')} className="neon-btn" style={{ padding: '6px 10px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
@@ -553,7 +643,7 @@ export default function App() {
               {profile.certificates.length === 0 ? (
                 <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '15px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
                   {profile.certificates.map((cert, idx) => {
                     const isPdf = cert.name.toLowerCase().endsWith('.pdf');
                     return (
@@ -567,7 +657,7 @@ export default function App() {
                           <img src={cert.url} alt="Cert" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '10px' }} />
                         )}
                         <span style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</span>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px' }}>
                           <a href={cert.url} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
                             <ExternalLink size={12} /> Դիտել
                           </a>
