@@ -4,7 +4,7 @@ import { translations } from './translations';
 import {
   Stethoscope, Phone, Send, MessageCircle, MapPin, BookOpen,
   Award, Moon, Sun, LogOut, Camera, Upload, Trash2, ExternalLink,
-  FileText, Globe, Share2, Copy, Check
+  FileText, Globe, Share2, Copy, Check, X
 } from 'lucide-react';
 import './index.css';
 
@@ -25,6 +25,8 @@ export default function App() {
 
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+  const [activeShareIndex, setActiveShareIndex] = useState(null);
 
   const [profile, setProfile] = useState({
     full_name: '',
@@ -49,6 +51,13 @@ export default function App() {
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
   };
 
   useEffect(() => {
@@ -118,11 +127,11 @@ export default function App() {
     setLoading(true);
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) alert(error.message);
-      else alert('Success! Check your email if required.');
+      if (error) showToast(error.message);
+      else showToast(t.successRegister || 'Հաջողվեց! Ստուգեք ձեր էլ. հասցեն։');
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
+      if (error) showToast(error.message);
     }
     setLoading(false);
   };
@@ -143,8 +152,9 @@ export default function App() {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
       setProfile({ ...profile, avatar_url: data.publicUrl });
+      showToast(t.successPhotoUpdate || 'Նկարը հաջողությամբ թարմացվեց։');
     } catch (error) {
-      alert(error.message);
+      showToast(error.message);
     } finally {
       setLoading(false);
     }
@@ -181,9 +191,9 @@ export default function App() {
         updated_at: new Date()
       });
 
-      alert('Ֆայլը հաջողությամբ ավելացվեց։');
+      showToast(t.successFileUpload || 'Ֆայլը հաջողությամբ ավելացվեց։');
     } catch (error) {
-      alert(error.message);
+      showToast(error.message);
     } finally {
       setLoading(false);
     }
@@ -201,6 +211,7 @@ export default function App() {
       [type]: list,
       updated_at: new Date()
     });
+    showToast(t.successDelete || 'Նյութը հաջողությամբ ջնջվեց։');
   };
 
   const updateProfile = async (e) => {
@@ -214,14 +225,15 @@ export default function App() {
     };
 
     const { error } = await supabase.from('profiles').upsert(updates);
-    if (error) alert(error.message);
-    else alert(t.successUpdate);
+    if (error) showToast(error.message);
+    else showToast(t.successUpdate);
     setLoading(false);
   };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
+    showToast(t.copiedText || 'Հղումը պատճենված է։');
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -233,7 +245,7 @@ export default function App() {
             <path className="ecg-line" d="M0,25 l30,0 l10,-20 l10,40 l15,-50 l10,60 l10,-30 l30,0" />
           </svg>
         </div>
-        <p style={{ fontWeight: '600', letterSpacing: '1px' }}>Բեռնվում է...</p>
+        <p style={{ fontWeight: '600', letterSpacing: '1px' }}>{t.loading || 'Բեռնվում է...'}</p>
       </div>
     );
   }
@@ -241,12 +253,38 @@ export default function App() {
   const publicLink = session ? `${window.location.origin}?user=${session.user.id}` : '';
 
   return (
-    <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '20px', maxWidth: '850px', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '20px', maxWidth: '850px', margin: '0 auto', boxSizing: 'border-box', position: 'relative' }}>
+
+      {/* 🌟 Ծանուցում (Toast) */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: '30px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          background: 'rgba(15, 23, 42, 0.9)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid var(--primary-color)',
+          color: '#fff',
+          padding: '12px 24px',
+          borderRadius: '16px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5), 0 0 20px var(--primary-glow)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          <Stethoscope size={18} color="var(--primary-color)" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* Վերին վահանակ */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
         <button onClick={toggleTheme} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px' }}>
-          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} {theme === 'light' ? 'Գիշեր' : 'Ցերեկ'}
+          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} {theme === 'light' ? t.themeNight : t.themeDay}
         </button>
         <select
           value={lang}
@@ -292,13 +330,12 @@ export default function App() {
             </button>
           </form>
           <p onClick={() => setIsSignUp(!isSignUp)} style={{ marginTop: '20px', cursor: 'pointer', fontSize: '13px', opacity: 0.8, color: 'var(--primary-color)' }}>
-            {isSignUp ? 'Արդեն ունե՞ք հաշիվ: Մուտք գործեք' : "Չունե՞ք հաշիվ: Գրանցվեք"}
+            {isSignUp ? t.haveAccountText : t.noAccountText}
           </p>
         </div>
       ) : (
         <div className="glass-box" style={{ padding: '30px', width: '100%', boxSizing: 'border-box' }}>
 
-          {/* 🌟 Կիսվելու կոճակ հանրային հղման համար */}
           {session && !isPublicView && (
             <div style={{ marginBottom: '25px' }}>
               <button
@@ -306,7 +343,7 @@ export default function App() {
                 className="neon-btn"
                 style={{ width: '100%', justifyContent: 'center', padding: '12px', gap: '10px', fontSize: '14px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
               >
-                <Share2 size={18} /> 🔗 Կիսվել Իմ Հանրային Պրոֆիլով
+                <Share2 size={18} /> 🔗 {t.sharePublicProfile}
               </button>
 
               <div style={{
@@ -331,35 +368,14 @@ export default function App() {
                       className="neon-btn"
                       style={{ padding: '8px 14px', fontSize: '12px', whiteSpace: 'nowrap' }}
                     >
-                      {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Պատճենված է' : 'Պատճենել'}
+                      {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? t.copiedBtn : t.copyBtn}
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: '10px', marginTop: '5px', flexWrap: 'wrap' }}>
-                    <a
-                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Իմ բժշկական պորտֆոլիոն՝ ' + publicLink)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="neon-btn"
-                      style={{ padding: '6px 12px', fontSize: '12px', background: '#25D366' }}
-                    >
-                      WhatsApp
-                    </a>
-                    <a
-                      href={`https://t.me/share/url?url=${encodeURIComponent(publicLink)}&text=${encodeURIComponent('Իմ բժշկական պորտֆոլիոն')}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="neon-btn"
-                      style={{ padding: '6px 12px', fontSize: '12px', background: '#229ED9' }}
-                    >
-                      Telegram
-                    </a>
-                    <a
-                      href={`mailto:?subject=Իմ բժշկական պորտֆոլիոն&body=${encodeURIComponent(publicLink)}`}
-                      className="neon-btn"
-                      style={{ padding: '6px 12px', fontSize: '12px', background: '#ea4335' }}
-                    >
-                      Email
-                    </a>
+                    <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(publicLink)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', background: '#25D366' }}>WhatsApp</a>
+                    <a href={`https://t.me/share/url?url=${encodeURIComponent(publicLink)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', background: '#229ED9' }}>Telegram</a>
+                    <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(publicLink)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', background: '#0a66c2' }}>LinkedIn</a>
+                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(publicLink)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', background: '#1877f2' }}>Facebook</a>
                   </div>
                 </div>
               </div>
@@ -382,7 +398,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 1. ՀԻՄՆԱԿԱՆ ԲԱԺԻՆ - Առանց ռամկայի, միայն թափանցիկ նկար և լույսային էֆեկտներ */}
+          {/* 1. ՀԻՄՆԱԿԱՆ ԲԱԺԻՆ */}
           {activeTab === 'profile' && (
             <div>
               <div style={{ textAlign: 'center', marginBottom: '30px', padding: '25px 15px', background: 'rgba(20, 184, 166, 0.03)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
@@ -392,7 +408,7 @@ export default function App() {
                   ) : (
                     <div className="glass-input" style={{ width: '100%', height: '100%', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: 0.6 }}>
                       <Stethoscope size={55} />
-                      <span style={{ fontSize: '13px' }}>Նկար չկա</span>
+                      <span style={{ fontSize: '13px' }}>{t.noImageText || 'Նկար չկա'}</span>
                     </div>
                   )}
                   {session && !isPublicView && (
@@ -402,36 +418,36 @@ export default function App() {
                     </label>
                   )}
                 </div>
-                <h1 style={{ fontSize: '28px', margin: '10px 0 8px', fontWeight: '700', letterSpacing: '0.5px' }}>{profile.full_name || 'Բժշկական Մասնագետ'}</h1>
-                <p style={{ fontStyle: 'italic', opacity: 0.9, fontSize: '15px', marginBottom: '6px' }}>{profile.specialty || 'Մասնագիտություն չկա'}</p>
-                <p style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px' }}>{profile.university || 'Բուհ չկա նշված'}</p>
+                <h1 style={{ fontSize: '28px', margin: '10px 0 8px', fontWeight: '700' }}>{profile.full_name || t.defaultName}</h1>
+                <p style={{ fontStyle: 'italic', opacity: 0.9, fontSize: '15px', marginBottom: '6px' }}>{profile.specialty || t.defaultSpecialty}</p>
+                <p style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px' }}>{profile.university || t.defaultUniversity}</p>
               </div>
 
               {!isPublicView ? (
                 <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   <input
                     type="text"
-                    placeholder="Անուն Ազգանուն (օր. Վարուժան Վաղարշակյան)"
+                    placeholder={t.namePlaceholder}
                     value={profile.full_name || ''}
                     onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
                     className="glass-input"
                   />
                   <input
                     type="text"
-                    placeholder="Մասնագիտություն / Կոչում (օր. Բժշկական ֆակուլտետի ուսանող)"
+                    placeholder={t.specialtyPlaceholder}
                     value={profile.specialty || ''}
                     onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
                     className="glass-input"
                   />
                   <input
                     type="text"
-                    placeholder="Ուսումնական հաստատություն (օր. ՄՊՀ Անվան Բժշկական Համալսարան)"
+                    placeholder={t.universityPlaceholder}
                     value={profile.university || ''}
                     onChange={(e) => setProfile({ ...profile, university: e.target.value })}
                     className="glass-input"
                   />
                   <textarea
-                    placeholder="Գրեք ձեր գործունեության, հաջողությունների և հետաքրքրությունների մասին..."
+                    placeholder={t.bioPlaceholder}
                     value={profile.bio || ''}
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                     className="glass-input"
@@ -444,73 +460,66 @@ export default function App() {
               ) : (
                 <div className="glass-input" style={{ padding: '20px', lineHeight: '1.6' }}>
                   <p><strong>{t.bioLabel}:</strong></p>
-                  <p>{profile.bio || 'Տեղեկություն չկա...'}</p>
+                  <p>{profile.bio || t.noBioText}</p>
                 </div>
               )}
             </div>
           )}
 
-          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ */}
+          {/* 2. ԿՈՆՏԱԿՏՆԵՐ */}
           {activeTab === 'contact' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {!isPublicView ? (
                 <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   <input
                     type="text"
-                    placeholder="Հեռախոսահամար (օր. +37494395221)"
+                    placeholder={t.phonePlaceholder}
                     value={profile.phone || ''}
                     onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                     className="glass-input"
                   />
                   <input
                     type="text"
-                    placeholder="Telegram օգտանուն (առանց @-ի, օր. hrach_v)"
+                    placeholder={t.telegramPlaceholder}
                     value={profile.telegram || ''}
                     onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
                     className="glass-input"
                   />
                   <input
                     type="text"
-                    placeholder="WhatsApp համար (օր. +37494395221)"
+                    placeholder={t.whatsappPlaceholder}
                     value={profile.whatsapp || ''}
                     onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
                     className="glass-input"
                   />
-
                   <input
                     type="text"
-                    placeholder="Instagram հղում կամ օգտանուն"
+                    placeholder={t.instagramPlaceholder}
                     value={profile.instagram || ''}
                     onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
                     className="glass-input"
                   />
                   <input
                     type="text"
-                    placeholder="LinkedIn հղում"
+                    placeholder={t.linkedinPlaceholder}
                     value={profile.linkedin || ''}
                     onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
                     className="glass-input"
                   />
                   <input
                     type="text"
-                    placeholder="Facebook հղում"
+                    placeholder={t.facebookPlaceholder}
                     value={profile.facebook || ''}
                     onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
                     className="glass-input"
                   />
-
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="Մուտքագրեք Google Maps-ի հղումը կամ iframe կոդը..."
-                      value={profile.map_url || ''}
-                      onChange={(e) => setProfile({ ...profile, map_url: e.target.value })}
-                      className="glass-input"
-                    />
-                    <div style={{ marginTop: '8px', padding: '10px', background: 'rgba(20, 184, 166, 0.1)', border: '1px solid var(--card-border)', borderRadius: '10px', fontSize: '12px', lineHeight: '1.5' }}>
-                      <strong>📍 Google Maps-ի տեղադրում.</strong> Կարող եք տեղադրել ինչպես մաքուր `src` հղումը, այնպես էլ ամբողջական `iframe` կոդը:
-                    </div>
-                  </div>
+                  <input
+                    type="text"
+                    placeholder={t.mapPlaceholder}
+                    value={profile.map_url || ''}
+                    onChange={(e) => setProfile({ ...profile, map_url: e.target.value })}
+                    className="glass-input"
+                  />
                   <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
                     {t.updateBtn}
                   </button>
@@ -520,7 +529,7 @@ export default function App() {
                   <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     {profile.phone && (
                       <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                        <Phone size={18} color="var(--primary-color)" /> Զանգահարել: {profile.phone}
+                        <Phone size={18} color="var(--primary-color)" /> {t.callLabel}: {profile.phone}
                       </a>
                     )}
                     {profile.telegram && (
@@ -533,36 +542,7 @@ export default function App() {
                         <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
                       </a>
                     )}
-                    {profile.instagram && (
-                      <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Globe size={18} color="var(--primary-color)" /> Instagram
-                      </a>
-                    )}
-                    {profile.linkedin && (
-                      <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Share2 size={18} color="var(--primary-color)" /> LinkedIn
-                      </a>
-                    )}
-                    {profile.facebook && (
-                      <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Globe size={18} color="var(--primary-color)" /> Facebook
-                      </a>
-                    )}
                   </div>
-                </div>
-              )}
-
-              {profile.map_url && (
-                <div className="glass-input" style={{ overflow: 'hidden', height: '250px', borderRadius: '16px', marginTop: '15px', padding: 0 }}>
-                  <iframe
-                    src={profile.map_url.includes('src="') ? profile.map_url.split('src="')[1].split('"')[0] : profile.map_url}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    title="Location Map"
-                  ></iframe>
                 </div>
               )}
             </div>
@@ -575,7 +555,7 @@ export default function App() {
                 <h3 style={{ margin: 0 }}>{t.tabLibrary}</h3>
                 {session && !isPublicView && (
                   <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                    <Upload size={16} /> Ներբեռնել նյութ (PDF/Գիրք)
+                    <Upload size={16} /> {t.uploadLibraryBtn}
                     <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={(e) => handleFileUpload(e, 'library')} style={{ display: 'none' }} />
                   </label>
                 )}
@@ -586,40 +566,42 @@ export default function App() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {profile.library.map((item, idx) => (
-                    <div key={idx} className="glass-input" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div key={idx} className="glass-input" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', position: 'relative' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '10px', wordBreak: 'break-all' }}>
                         <FileText size={18} color="var(--primary-color)" /> {item.name}
                       </span>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <ExternalLink size={14} /> Բացել / Ներբեռնել
+                          <ExternalLink size={14} /> {t.openBtn}
                         </a>
-                        <a
-                          href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Ծանոթացեք այս նյութին՝ ' + item.name + ' - ' + item.url)}`}
-                          target="_blank"
-                          rel="noreferrer"
+                        <button
+                          onClick={() => setActiveShareIndex(activeShareIndex === idx ? null : idx)}
                           className="neon-btn"
-                          style={{ padding: '6px 10px', fontSize: '12px', background: '#25D366' }}
-                          title="Կիսվել WhatsApp-ով"
+                          style={{ padding: '6px 10px', fontSize: '12px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
                         >
-                          <Share2 size={14} /> WhatsApp
-                        </a>
-                        <a
-                          href={`https://t.me/share/url?url=${encodeURIComponent(item.url)}&text=${encodeURIComponent('Ծանոթացեք այս նյութին՝ ' + item.name)}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="neon-btn"
-                          style={{ padding: '6px 10px', fontSize: '12px', background: '#229ED9' }}
-                          title="Կիսվել Telegram-ով"
-                        >
-                          <Send size={14} /> Telegram
-                        </a>
+                          <Share2 size={16} />
+                        </button>
                         {session && !isPublicView && (
                           <button onClick={() => handleDeleteItem(idx, 'library')} className="neon-btn" style={{ padding: '6px 10px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
                             <Trash2 size={16} />
                           </button>
                         )}
                       </div>
+
+                      {activeShareIndex === idx && (
+                        <div style={{ width: '100%', marginTop: '10px', padding: '12px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--card-border)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', opacity: 0.8 }}>
+                            <span>{t.shareWithLabel || 'Կիսվել՝'}</span>
+                            <X size={16} style={{ cursor: 'pointer' }} onClick={() => setActiveShareIndex(null)} />
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#25D366' }}>WhatsApp</a>
+                            <a href={`https://t.me/share/url?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#229ED9' }}>Telegram</a>
+                            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#0a66c2' }}>LinkedIn</a>
+                            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#1877f2' }}>Facebook</a>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -627,14 +609,14 @@ export default function App() {
             </div>
           )}
 
-          {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ */}
+          {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ (Վերականգնված է ջնջելու հնարավորությունը) */}
           {activeTab === 'certificates' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                 <h3 style={{ margin: 0 }}>{t.tabCertificates}</h3>
                 {session && !isPublicView && (
                   <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                    <Upload size={16} /> Ավելացնել սերտիֆիկատ (PDF/Նկար)
+                    <Upload size={16} /> {t.uploadCertBtn}
                     <input type="file" accept="image/*,.pdf" onChange={(e) => handleFileUpload(e, 'certificates')} style={{ display: 'none' }} />
                   </label>
                 )}
@@ -644,32 +626,22 @@ export default function App() {
                 <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
-                  {profile.certificates.map((cert, idx) => {
-                    const isPdf = cert.name.toLowerCase().endsWith('.pdf');
-                    return (
-                      <div key={idx} className="glass-input" style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-                        {isPdf ? (
-                          <div style={{ width: '100%', height: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(20, 184, 166, 0.1)', borderRadius: '10px', gap: '5px' }}>
-                            <FileText size={36} color="var(--primary-color)" />
-                            <span style={{ fontSize: '11px', fontWeight: 'bold' }}>PDF Փաստաթուղթ</span>
-                          </div>
-                        ) : (
-                          <img src={cert.url} alt="Cert" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '10px' }} />
+                  {profile.certificates.map((cert, idx) => (
+                    <div key={idx} className="glass-input" style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
+                      <img src={cert.url} alt="Cert" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '10px' }} />
+                      <span style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px' }}>
+                        <a href={cert.url} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
+                          <ExternalLink size={12} /> {t.openBtn}
+                        </a>
+                        {session && !isPublicView && (
+                          <button onClick={() => handleDeleteItem(idx, 'certificates')} className="neon-btn" style={{ padding: '4px 8px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
+                            <Trash2 size={14} />
+                          </button>
                         )}
-                        <span style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</span>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px' }}>
-                          <a href={cert.url} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
-                            <ExternalLink size={12} /> Դիտել
-                          </a>
-                          {session && !isPublicView && (
-                            <button onClick={() => handleDeleteItem(idx, 'certificates')} className="neon-btn" style={{ padding: '4px 8px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                        </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
