@@ -252,6 +252,16 @@ export default function App() {
 
   const publicLink = session ? `${window.location.origin}?user=${session.user.id}` : '';
 
+  // Դինամիկ ստեղծում ենք լոգոյի տառերը անուն-ազգանունից (օր. "Վարուժան Վաղարշակյան" -> "ՎՎ")
+  const getInitials = (name) => {
+    if (!name) return 'MD';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   return (
     <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '20px', maxWidth: '850px', margin: '0 auto', boxSizing: 'border-box', position: 'relative' }}>
 
@@ -281,26 +291,51 @@ export default function App() {
         </div>
       )}
 
-      {/* Վերին վահանակ */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
-        <button onClick={toggleTheme} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px' }}>
-          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} {theme === 'light' ? t.themeNight : t.themeDay}
-        </button>
-        <select
-          value={lang}
-          onChange={(e) => setLang(e.target.value)}
-          className="glass-input"
-          style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer', width: 'auto' }}
-        >
-          <option value="am" style={{ background: '#0f172a', color: '#fff' }}>🇦🇲 Հայ</option>
-          <option value="en" style={{ background: '#0f172a', color: '#fff' }}>🇬🇧 Eng</option>
-          <option value="ru" style={{ background: '#0f172a', color: '#fff' }}>🇷🇺 Рус</option>
-        </select>
-        {session && !isPublicView && (
-          <button onClick={() => supabase.auth.signOut()} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
-            <LogOut size={16} /> {t.logout}
+      {/* Վերին վահանակ՝ Ձախ կողմում Նեոնային Լոգո (Անուն-Ազգանվան տառերով), Աջ կողմում՝ Լեզու և Թեմա */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+
+        {/* 🌟 Նեոնային Լոգո Վերին Ձախ Անկյունում */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '12px',
+            background: 'rgba(20, 184, 166, 0.1)',
+            border: '1px solid var(--primary-color)',
+            boxShadow: '0 0 15px var(--primary-glow)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            color: 'var(--primary-color)',
+            fontSize: '16px',
+            letterSpacing: '1px'
+          }}>
+            {getInitials(profile.full_name)}
+          </div>
+        </div>
+
+        {/* Աջ վահանակ (Թեմա, Լեզու, Ելք) */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button onClick={toggleTheme} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px' }}>
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} {theme === 'light' ? t.themeNight : t.themeDay}
           </button>
-        )}
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+            className="glass-input"
+            style={{ padding: '8px 12px', fontSize: '14px', cursor: 'pointer', width: 'auto' }}
+          >
+            <option value="am" style={{ background: '#0f172a', color: '#fff' }}>🇦🇲 Հայ</option>
+            <option value="en" style={{ background: '#0f172a', color: '#fff' }}>🇬🇧 Eng</option>
+            <option value="ru" style={{ background: '#0f172a', color: '#fff' }}>🇷🇺 Рус</option>
+          </select>
+          {session && !isPublicView && (
+            <button onClick={() => supabase.auth.signOut()} className="neon-btn" style={{ padding: '8px 14px', fontSize: '13px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
+              <LogOut size={16} /> {t.logout}
+            </button>
+          )}
+        </div>
       </div>
 
       {!session && !isPublicView ? (
@@ -466,7 +501,7 @@ export default function App() {
             </div>
           )}
 
-          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ (Աշխատում է և՛ սեփականատիրոջ, և՛ հանրային դիտման համար) */}
+          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ */}
           {activeTab === 'contact' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {!isPublicView && (
@@ -526,7 +561,6 @@ export default function App() {
                 </form>
               )}
 
-              {/* Հանրային տեսքով կամ լրացված կոնտակտների ցուցադրություն */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   {profile.phone ? (
@@ -563,7 +597,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Google Maps Քարտեզ */}
               {profile.map_url && (
                 <div className="glass-input" style={{ overflow: 'hidden', height: '250px', borderRadius: '16px', marginTop: '10px', padding: 0 }}>
                   <iframe
