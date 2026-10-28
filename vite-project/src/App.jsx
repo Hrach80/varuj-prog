@@ -612,67 +612,80 @@ export default function App() {
               )}
             </div>
           )}
+            {/* 3. ԳՐԱԴԱՐԱՆ */}
+            {activeTab === 'library' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                  <h3 style={{ margin: 0 }}>{t.tabLibrary}</h3>
+                  {session && !isPublicView && (
+                    <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                      <Upload size={16} /> {t.uploadLibraryBtn}
+                      <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={(e) => handleFileUpload(e, 'library')} style={{ display: 'none' }} />
+                    </label>
+                  )}
+                </div>
 
-          {/* 3. ԳՐԱԴԱՐԱՆ */}
-          {activeTab === 'library' && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                <h3 style={{ margin: 0 }}>{t.tabLibrary}</h3>
-                {session && !isPublicView && (
-                  <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                    <Upload size={16} /> {t.uploadLibraryBtn}
-                    <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={(e) => handleFileUpload(e, 'library')} style={{ display: 'none' }} />
-                  </label>
-                )}
-              </div>
+                {profile.library.length === 0 ? (
+                  <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {profile.library.map((item, idx) => (
+                      <div key={idx} className="glass-input" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', position: 'relative', overflow: 'hidden' }}>
 
-              {profile.library.length === 0 ? (
-                <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {profile.library.map((item, idx) => (
-                    <div key={idx} className="glass-input" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', position: 'relative' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '10px', wordBreak: 'break-all' }}>
-                        <FileText size={18} color="var(--primary-color)" /> {item.name}
-                      </span>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <ExternalLink size={14} /> {t.openBtn}
-                        </a>
-                        <button
-                          onClick={() => setActiveShareIndex(activeShareIndex === idx ? null : idx)}
-                          className="neon-btn"
-                          style={{ padding: '6px 10px', fontSize: '12px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
-                        >
-                          <Share2 size={16} />
-                        </button>
-                        {session && !isPublicView && (
-                          <button onClick={() => handleDeleteItem(idx, 'library')} className="neon-btn" style={{ padding: '6px 10px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
-                            <Trash2 size={16} />
+                        {/* 📁 Ֆայլի նշանը և անունը (minWidth: 0-ն և textOverflow-ն ապահովում են կետիկներով կրճատումը) */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                          <FileText size={18} color="var(--primary-color)" style={{ flexShrink: 0 }} />
+                          <span style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block',
+                            width: '100%',
+                            fontSize: '14px'
+                          }}>
+                            {item.name}
+                          </span>
+                        </div>
+
+                        {/* Կոճակներ (Բացել, Կիսվել, Հեռացնել) */}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                          <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <ExternalLink size={14} /> {t.openBtn}
+                          </a>
+                          <button
+                            onClick={() => setActiveShareIndex(activeShareIndex === idx ? null : idx)}
+                            className="neon-btn"
+                            style={{ padding: '6px 10px', fontSize: '12px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
+                          >
+                            <Share2 size={16} />
                           </button>
+                          {session && !isPublicView && (
+                            <button onClick={() => handleDeleteItem(idx, 'library')} className="neon-btn" style={{ padding: '6px 10px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+
+                        {activeShareIndex === idx && (
+                          <div style={{ width: '100%', marginTop: '10px', padding: '12px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--card-border)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', opacity: 0.8 }}>
+                              <span>{t.shareWithLabel || 'Կիսվել՝'}</span>
+                              <X size={16} style={{ cursor: 'pointer' }} onClick={() => setActiveShareIndex(null)} />
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#25D366' }}>WhatsApp</a>
+                              <a href={`https://t.me/share/url?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#229ED9' }}>Telegram</a>
+                              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#0a66c2' }}>LinkedIn</a>
+                              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#1877f2' }}>Facebook</a>
+                            </div>
+                          </div>
                         )}
                       </div>
-
-                      {activeShareIndex === idx && (
-                        <div style={{ width: '100%', marginTop: '10px', padding: '12px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--card-border)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', opacity: 0.8 }}>
-                            <span>{t.shareWithLabel || 'Կիսվել՝'}</span>
-                            <X size={16} style={{ cursor: 'pointer' }} onClick={() => setActiveShareIndex(null)} />
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#25D366' }}>WhatsApp</a>
-                            <a href={`https://t.me/share/url?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#229ED9' }}>Telegram</a>
-                            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#0a66c2' }}>LinkedIn</a>
-                            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#1877f2' }}>Facebook</a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
           {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ */}
           {activeTab === 'certificates' && (
