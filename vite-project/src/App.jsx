@@ -4,7 +4,7 @@ import { translations } from './translations';
 import {
   Stethoscope, Phone, Send, MessageCircle, MapPin, BookOpen,
   Award, Moon, Sun, LogOut, Camera, Upload, Trash2, ExternalLink,
-  FileText, Globe, Share2, Copy, Check, X
+  FileText, Globe, Share2, Copy, Check, X, Eye, EyeOff
 } from 'lucide-react';
 import './index.css';
 
@@ -22,7 +22,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('profile');
   const [publicUserId, setPublicUserId] = useState(null);
   const [isPublicView, setIsPublicView] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
@@ -216,18 +216,38 @@ export default function App() {
 
   const updateProfile = async (e) => {
     e.preventDefault();
-    if (!session) return;
-    setLoading(true);
-    const updates = {
-      id: session.user.id,
-      ...profile,
-      updated_at: new Date(),
-    };
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name_am: profile.full_name_am,
+          full_name_en: profile.full_name_en,
+          full_name_ru: profile.full_name_ru,
+          specialty_am: profile.specialty_am,
+          specialty_en: profile.specialty_en,
+          specialty_ru: profile.specialty_ru,
+          university_am: profile.university_am,
+          university_en: profile.university_en,
+          university_ru: profile.university_ru,
+          bio_am: profile.bio_am,
+          bio_en: profile.bio_en,
+          bio_ru: profile.bio_ru,
+          phone: profile.phone,
+          telegram: profile.telegram,
+          whatsapp: profile.whatsapp,
+          instagram: profile.instagram,
+          linkedin: profile.linkedin,
+          facebook: profile.facebook,
+          map_url: profile.map_url,
+          updated_at: new Date()
+        })
+        .eq('id', session.user.id);
 
-    const { error } = await supabase.from('profiles').upsert(updates);
-    if (error) showToast(error.message);
-    else showToast(t.successUpdate);
-    setLoading(false);
+      if (error) throw error;
+      alert(t.successUpdate);
+    } catch (error) {
+      console.error('Error updating profile:', error.message);
+    }
   };
 
   const copyToClipboard = (text) => {
@@ -352,14 +372,38 @@ export default function App() {
               className="glass-input"
               required
             />
-            <input
-              type="password"
-              placeholder={t.passwordPlaceholder}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="glass-input"
-              required
-            />
+            <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder={t.passwordPlaceholder}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="glass-input"
+                style={{ width: '100%', paddingRight: '45px' }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '15px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--primary-color)', // Հիմնական նեոնային/տարբերվող գույնը
+                  opacity: 0.9,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  padding: '4px'
+                }}
+                title={showPassword ? "Թաքցնել գաղտնաբառը" : "Ցույց տալ գաղտնաբառը"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <button type="submit" className="neon-btn" style={{ padding: '12px', width: '100%', justifyContent: 'center' }}>
               {isSignUp ? t.signUpBtn : t.loginBtn}
             </button>
@@ -433,185 +477,137 @@ export default function App() {
             </button>
           </div>
 
-          {/* 1. ՀԻՄՆԱԿԱՆ ԲԱԺԻՆ */}
-          {activeTab === 'profile' && (
-            <div>
-              <div style={{ textAlign: 'center', marginBottom: '30px', padding: '25px 15px', background: 'rgba(20, 184, 166, 0.03)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
-                <div style={{ position: 'relative', width: '220px', height: '260px', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {profile.avatar_url ? (
-                    <img src={profile.avatar_url} alt="Profile" className="pure-transparent-img" />
-                  ) : (
-                    <div className="glass-input" style={{ width: '100%', height: '100%', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: 0.6 }}>
-                      <Stethoscope size={55} />
-                      <span style={{ fontSize: '13px' }}>{t.noImageText || 'Նկար չկա'}</span>
-                    </div>
-                  )}
-                  {session && !isPublicView && (
-                    <label style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'var(--primary-color)', borderRadius: '50%', padding: '10px', cursor: 'pointer', boxShadow: '0 0 15px var(--primary-glow)', color: '#fff', display: 'flex', zIndex: 5 }}>
-                      <Camera size={18} />
-                      <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
-                    </label>
-                  )}
+            {/* 1. ՀԻՄՆԱԿԱՆ ԲԱԺԻՆ */}
+            {activeTab === 'profile' && (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: '30px', padding: '25px 15px', background: 'rgba(20, 184, 166, 0.03)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
+                  <div style={{ position: 'relative', width: '220px', height: '260px', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {profile.avatar_url ? (
+                      <img src={profile.avatar_url} alt="Profile" className="pure-transparent-img" />
+                    ) : (
+                      <div className="glass-input" style={{ width: '100%', height: '100%', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: 0.6 }}>
+                        <Stethoscope size={55} />
+                        <span style={{ fontSize: '13px' }}>{t.noImageText || 'Նկար չկա'}</span>
+                      </div>
+                    )}
+                    {session && !isPublicView && (
+                      <label style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'var(--primary-color)', borderRadius: '50%', padding: '10px', cursor: 'pointer', boxShadow: '0 0 15px var(--primary-glow)', color: '#fff', display: 'flex', zIndex: 5 }}>
+                        <Camera size={18} />
+                        <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+                      </label>
+                    )}
+                  </div>
+                  <h1 style={{ fontSize: '28px', margin: '10px 0 8px', fontWeight: '700' }}>
+                    {profile[`full_name_${lang}`] || t.defaultName}
+                  </h1>
+                  <p style={{ fontStyle: 'italic', opacity: 0.9, fontSize: '15px', marginBottom: '6px' }}>
+                    {profile[`specialty_${lang}`] || t.defaultSpecialty}
+                  </p>
+                  <p style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px' }}>
+                    {profile[`university_${lang}`] || t.defaultUniversity}
+                  </p>
                 </div>
-                <h1 style={{ fontSize: '28px', margin: '10px 0 8px', fontWeight: '700' }}>{profile.full_name || t.defaultName}</h1>
-                <p style={{ fontStyle: 'italic', opacity: 0.9, fontSize: '15px', marginBottom: '6px' }}>{profile.specialty || t.defaultSpecialty}</p>
-                <p style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px' }}>{profile.university || t.defaultUniversity}</p>
+
+                {!isPublicView ? (
+                  <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <input
+                      type="text"
+                      placeholder={`${t.namePlaceholder} (${lang.toUpperCase()})`}
+                      value={profile[`full_name_${lang}`] || ''}
+                      onChange={(e) => setProfile({ ...profile, [`full_name_${lang}`]: e.target.value })}
+                      className="glass-input"
+                    />
+                    <input
+                      type="text"
+                      placeholder={`${t.specialtyPlaceholder} (${lang.toUpperCase()})`}
+                      value={profile[`specialty_${lang}`] || ''}
+                      onChange={(e) => setProfile({ ...profile, [`specialty_${lang}`]: e.target.value })}
+                      className="glass-input"
+                    />
+                    <input
+                      type="text"
+                      placeholder={`${t.universityPlaceholder} (${lang.toUpperCase()})`}
+                      value={profile[`university_${lang}`] || ''}
+                      onChange={(e) => setProfile({ ...profile, [`university_${lang}`]: e.target.value })}
+                      className="glass-input"
+                    />
+                    <textarea
+                      placeholder={`${t.bioPlaceholder} (${lang.toUpperCase()})`}
+                      value={profile[`bio_${lang}`] || ''}
+                      onChange={(e) => setProfile({ ...profile, [`bio_${lang}`]: e.target.value })}
+                      className="glass-input"
+                      style={{ height: '100px', resize: 'none' }}
+                    />
+                    <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
+                      {t.updateBtn}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="glass-input" style={{ padding: '20px', lineHeight: '1.6' }}>
+                    <p><strong>{t.bioLabel}:</strong></p>
+                    <p>{profile[`bio_${lang}`] || profile.bio || t.noBioText}</p>
+                  </div>
+                )}
               </div>
-
-              {!isPublicView ? (
-                <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <input
-                    type="text"
-                    placeholder={t.namePlaceholder}
-                    value={profile.full_name || ''}
-                    onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.specialtyPlaceholder}
-                    value={profile.specialty || ''}
-                    onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.universityPlaceholder}
-                    value={profile.university || ''}
-                    onChange={(e) => setProfile({ ...profile, university: e.target.value })}
-                    className="glass-input"
-                  />
-                  <textarea
-                    placeholder={t.bioPlaceholder}
-                    value={profile.bio || ''}
-                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    className="glass-input"
-                    style={{ height: '100px', resize: 'none' }}
-                  />
-                  <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
-                    {t.updateBtn}
-                  </button>
-                </form>
-              ) : (
-                <div className="glass-input" style={{ padding: '20px', lineHeight: '1.6' }}>
-                  <p><strong>{t.bioLabel}:</strong></p>
-                  <p>{profile.bio || t.noBioText}</p>
-                </div>
-              )}
-            </div>
-          )}
-
+            )}
           {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ */}
-          {activeTab === 'contact' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {!isPublicView && (
-                <form onSubmit={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <input
-                    type="text"
-                    placeholder={t.phonePlaceholder}
-                    value={profile.phone || ''}
-                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.telegramPlaceholder}
-                    value={profile.telegram || ''}
-                    onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.whatsappPlaceholder}
-                    value={profile.whatsapp || ''}
-                    onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.instagramPlaceholder}
-                    value={profile.instagram || ''}
-                    onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.linkedinPlaceholder}
-                    value={profile.linkedin || ''}
-                    onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.facebookPlaceholder}
-                    value={profile.facebook || ''}
-                    onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
-                    className="glass-input"
-                  />
-                  <input
-                    type="text"
-                    placeholder={t.mapPlaceholder}
-                    value={profile.map_url || ''}
-                    onChange={(e) => setProfile({ ...profile, map_url: e.target.value })}
-                    className="glass-input"
-                  />
-                  <button type="submit" className="neon-btn" style={{ padding: '14px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
-                    {t.updateBtn}
-                  </button>
-                </form>
-              )}
+            {activeTab === 'contact' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  {profile.phone ? (
-                    <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                      <Phone size={18} color="var(--primary-color)" /> {t.callLabel}: {profile.phone}
-                    </a>
-                  ) : isPublicView && <span style={{ opacity: 0.6, fontSize: '13px' }}>Հեռախոսահամար նշված չէ</span>}
+                {/* Կոնտակտային տվյալների ցուցադրում / հղումներ */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    {profile.phone ? (
+                      <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                        <Phone size={18} color="var(--primary-color)" /> {t.callLabel}: {profile.phone}
+                      </a>
+                    ) : isPublicView && <span style={{ opacity: 0.6, fontSize: '13px' }}>Հեռախոսահամար նշված չէ</span>}
 
-                  {profile.telegram && (
-                    <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                      <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
-                    </a>
-                  )}
-                  {profile.whatsapp && (
-                    <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                      <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
-                    </a>
-                  )}
-                  {profile.instagram && (
-                    <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                      <Globe size={18} color="var(--primary-color)" /> Instagram
-                    </a>
-                  )}
-                  {profile.linkedin && (
-                    <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                      <Share2 size={18} color="var(--primary-color)" /> LinkedIn
-                    </a>
-                  )}
-                  {profile.facebook && (
-                    <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                      <Globe size={18} color="var(--primary-color)" /> Facebook
-                    </a>
-                  )}
+                    {profile.telegram && (
+                      <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
+                      </a>
+                    )}
+                    {profile.whatsapp && (
+                      <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                        <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
+                      </a>
+                    )}
+                    {profile.instagram && (
+                      <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Globe size={18} color="var(--primary-color)" /> Instagram
+                      </a>
+                    )}
+                    {profile.linkedin && (
+                      <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Share2 size={18} color="var(--primary-color)" /> LinkedIn
+                      </a>
+                    )}
+                    {profile.facebook && (
+                      <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                        <Globe size={18} color="var(--primary-color)" /> Facebook
+                      </a>
+                    )}
+                  </div>
                 </div>
+
+                {/* Քարտեզի ցուցադրում */}
+                {profile.map_url && (
+                  <div className="glass-input" style={{ overflow: 'hidden', height: '250px', borderRadius: '16px', marginTop: '10px', padding: 0 }}>
+                    <iframe
+                      src={profile.map_url.includes('src="') ? profile.map_url.split('src="')[1].split('"')[0] : profile.map_url}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen=""
+                      loading="lazy"
+                      title="Location Map"
+                    ></iframe>
+                  </div>
+                )}
               </div>
-
-              {profile.map_url && (
-                <div className="glass-input" style={{ overflow: 'hidden', height: '250px', borderRadius: '16px', marginTop: '10px', padding: 0 }}>
-                  <iframe
-                    src={profile.map_url.includes('src="') ? profile.map_url.split('src="')[1].split('"')[0] : profile.map_url}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    title="Location Map"
-                  ></iframe>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            {/* 3. ԳՐԱԴԱՐԱՆ */}
             {/* 3. ԳՐԱԴԱՐԱՆ */}
             {activeTab === 'library' && (
               <div>
