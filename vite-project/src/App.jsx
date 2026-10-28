@@ -27,7 +27,7 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [activeShareIndex, setActiveShareIndex] = useState(null);
-
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [profile, setProfile] = useState({
     full_name: '',
     specialty: '',
@@ -857,75 +857,69 @@ export default function App() {
                 {profile.certificates.length === 0 ? (
                   <p style={{ textAlign: 'center', opacity: 0.6, marginTop: '40px' }}>{t.noFiles}</p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                     {profile.certificates.map((item, index) => {
-                      const shareKey = `cert-${index}`;
-                      const isSharing = activeShareIndex === shareKey;
-                      const encodedUrl = encodeURIComponent(item.url);
-                      const encodedTitle = encodeURIComponent(item.name);
+                      const isImage = item.url.match(/\.(jpeg|jpg|gif|png|webp)$/i);
 
                       return (
-                        <div key={index} className="glass-input" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', position: 'relative', overflow: 'visible' }}>
-                          <span style={{ fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: '15px', flex: 1 }}>
-                            {item.name}
-                          </span>
-
-                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0, position: 'relative' }}>
-                            {/* Կիսվելու կոճակ */}
-                            <button
-                              onClick={() => setActiveShareIndex(isSharing ? null : shareKey)}
-                              className="neon-btn"
-                              style={{
-                                padding: '6px 12px',
-                                fontSize: '12px',
-                                background: isSharing ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
-                                borderColor: isSharing ? '#a855f7' : 'var(--primary-color)'
-                              }}
-                              title="Կիսվել"
-                            >
-                              <Share2 size={14} />
-                            </button>
-
-                            {/* Բացվող անիմացիոն մենյու */}
-                            {isSharing && (
-                              <div style={{
-                                position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 999,
-                                padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '180px',
-                                background: 'rgba(15, 23, 42, 0.92)',
-                                backdropFilter: 'blur(16px)',
-                                WebkitBackdropFilter: 'blur(16px)',
-                                border: '1px solid rgba(168, 85, 247, 0.4)',
-                                borderRadius: '14px',
-                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(168, 85, 247, 0.2)',
-                                animation: 'fadeInScale 0.25s ease-in-out'
-                              }}>
-                                <div style={{ fontSize: '11px', fontWeight: '600', color: '#a855f7', marginBottom: '2px', paddingBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                  Կիսվել հղումով
-                                </div>
-                                <a href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                  <MessageCircle size={15} color="#22c55e" /> WhatsApp
-                                </a>
-                                <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                  <Send size={15} color="#38bdf8" /> Telegram
-                                </a>
-                                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                  <Globe size={15} color="#60a5fa" /> Facebook
-                                </a>
-                                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                  <Share2 size={15} color="#818cf8" /> LinkedIn
-                                </a>
-                                <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                  <FileText size={15} color="#f43f5e" /> Email
-                                </a>
+                        <div
+                          key={index}
+                          className="glass-input"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '12px',
+                            gap: '10px',
+                            position: 'relative',
+                            borderRadius: '16px',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {/* Նախնական փոքր նկար/նախադիտում */}
+                          <div
+                            onClick={() => setSelectedCertificate(item)}
+                            style={{
+                              width: '100%',
+                              height: '140px',
+                              borderRadius: '10px',
+                              overflow: 'hidden',
+                              cursor: 'pointer',
+                              background: 'rgba(0,0,0,0.3)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'relative'
+                            }}
+                            title="Սեղմեք՝ մեծացնելու համար"
+                          >
+                            {isImage ? (
+                              <img
+                                src={item.url}
+                                alt={item.name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                              />
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#2dd4bf' }}>
+                                <FileText size={32} />
+                                <span style={{ fontSize: '11px' }}>PDF File</span>
                               </div>
                             )}
+                          </div>
 
-                            <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none' }}>
-                              <ExternalLink size={14} /> {t.openBtn}
-                            </a>
+                          {/* Անունը և ջնջելու կոճակը */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                            <span
+                              onClick={() => setSelectedCertificate(item)}
+                              style={{ fontWeight: '500', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, cursor: 'pointer', color: '#f8fafc' }}
+                              title={item.name}
+                            >
+                              {item.name}
+                            </span>
 
                             {session && !isPublicView && (
-                              <button onClick={() => handleDeleteItem(index, 'certificates')} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                              <button onClick={() => handleDeleteItem(index, 'certificates')} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}>
                                 <Trash2 size={16} />
                               </button>
                             )}
@@ -933,6 +927,68 @@ export default function App() {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* Մեծացված նկարի/սերտիֆիկատի ցուցադրման մոդալ պատուհան (Lightbox) */}
+                {selectedCertificate && (
+                  <div
+                    onClick={() => setSelectedCertificate(null)}
+                    style={{
+                      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                      background: 'rgba(10, 15, 30, 0.85)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      zIndex: 99999,
+                      padding: '20px',
+                      animation: 'fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        maxWidth: '92vw',
+                        maxHeight: '92vh',
+                        background: 'rgba(15, 23, 42, 0.95)',
+                        border: '1.5px solid rgba(20, 184, 166, 0.5)',
+                        borderRadius: '20px',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(20, 184, 166, 0.3)',
+                        position: 'relative',
+                        cursor: 'default'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#f8fafc', fontSize: '14px', fontWeight: '600', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                        <span>{selectedCertificate.name}</span>
+                        <button
+                          onClick={() => setSelectedCertificate(null)}
+                          style={{ background: 'transparent', border: 'none', color: '#f8fafc', cursor: 'pointer', fontSize: '18px', padding: '0 4px' }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                        {selectedCertificate.url.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                          <img
+                            src={selectedCertificate.url}
+                            alt={selectedCertificate.name}
+                            style={{ maxWidth: '100%', maxHeight: '78vh', objectFit: 'contain', borderRadius: '12px' }}
+                          />
+                        ) : (
+                          <iframe
+                            src={selectedCertificate.url}
+                            title={selectedCertificate.name}
+                            style={{ width: '80vw', height: '78vh', border: 'none', borderRadius: '12px' }}
+                          />
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
