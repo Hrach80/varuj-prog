@@ -18,7 +18,7 @@ export default function App() {
   const [lang, setLang] = useState('am');
   const [theme, setTheme] = useState('dark');
   const t = translations[lang];
-
+  const [showMainShareMenu, setShowMainShareMenu] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [publicUserId, setPublicUserId] = useState(null);
   const [isPublicView, setIsPublicView] = useState(false);
@@ -357,6 +357,129 @@ export default function App() {
           )}
         </div>
       </div>
+      {/* Հանրային պորտֆոլիոյի կիսվելու մոդալ պատուհան */}
+      {showShareModal && (
+        <div
+          onClick={() => setShowShareModal(false)}
+          style={{
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            background: 'rgba(10, 15, 30, 0.75)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 99999,
+            padding: '20px',
+            animation: 'fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            cursor: 'pointer'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: '480px',
+              background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+              border: '1.5px solid rgba(20, 184, 166, 0.5)',
+              borderRadius: '24px',
+              padding: '28px',
+              position: 'relative',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(20, 184, 166, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              cursor: 'default'
+            }}
+          >
+            {/* Վերնագրի վահանակը */}
+            <div style={{
+              background: 'rgba(20, 184, 166, 0.15)',
+              border: '1.5px solid rgba(20, 184, 166, 0.4)',
+              borderRadius: '14px',
+              padding: '14px',
+              textAlign: 'center',
+              color: '#2dd4bf',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              fontSize: '15px',
+              boxShadow: '0 0 15px rgba(20, 184, 166, 0.15)'
+            }}>
+              <Share2 size={18} /> Share My Public Profile
+            </div>
+
+            <div>
+              <p style={{ fontSize: '13px', opacity: 0.8, marginBottom: '8px', color: '#cbd5e1' }}>
+                Your public portfolio link:
+              </p>
+
+              {/* Հղման դաշտ և Copy կոճակ */}
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={`${window.location.origin}${window.location.pathname}?user=${session?.user?.id}`}
+                  className="glass-input"
+                  style={{ width: '100%', fontSize: '12px', background: 'rgba(0,0,0,0.4)', padding: '10px 14px' }}
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?user=${session?.user?.id}`);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="neon-btn"
+                  style={{ padding: '10px 18px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            {/* Սոց. ցանցերի իկոնկաներով կոճակներ (հավասարաչափ բաշխված) */}
+            {(() => {
+              const profileUrl = `${window.location.origin}${window.location.pathname}?user=${session?.user?.id}`;
+              const encodedUrl = encodeURIComponent(profileUrl);
+              const encodedTitle = encodeURIComponent("Իմ բժշկական պորտֆոլիոն");
+
+              return (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                  gap: '10px',
+                  marginTop: '4px'
+                }}>
+                  {/* WhatsApp */}
+                  <a href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(34, 197, 94, 0.15)', borderColor: '#22c55e', color: '#4ade80', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <MessageCircle size={16} color="#22c55e" /> WhatsApp
+                  </a>
+                  {/* Viber */}
+                  <a href={`viber://forward?text=${encodedTitle}%20${encodedUrl}`} className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(114, 95, 209, 0.15)', borderColor: '#735fd1', color: '#a78bfa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <Phone size={16} color="#a78bfa" /> Viber
+                  </a>
+                  {/* Telegram */}
+                  <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(56, 189, 248, 0.15)', borderColor: '#38bdf8', color: '#38bdf8', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <Send size={16} color="#38bdf8" /> Telegram
+                  </a>
+                  {/* LinkedIn */}
+                  <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(10, 102, 194, 0.15)', borderColor: '#0a66c2', color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <Share2 size={16} color="#60a5fa" /> LinkedIn
+                  </a>
+                  {/* Facebook */}
+                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(66, 103, 178, 0.15)', borderColor: '#4267B2', color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <Globe size={16} color="#60a5fa" /> Facebook
+                  </a>
+                  {/* Email */}
+                  <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(244, 63, 94, 0.15)', borderColor: '#f43f5e', color: '#fb7185', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <FileText size={16} color="#fb7185" /> Email
+                  </a>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
 
       {!session && !isPublicView ? (
         <div className="glass-box" style={{ padding: '30px', maxWidth: '400px', width: '100%', margin: '40px auto', textAlign: 'center', boxSizing: 'border-box' }}>
@@ -607,119 +730,208 @@ export default function App() {
                 )}
               </div>
             )}
-            {/* 3. ԳՐԱԴԱՐԱՆ */}
-            {/* 3. ԳՐԱԴԱՐԱՆ */}
+      
+            {/* 3. ԳՐԱԴԱՐԱՆԻ ԲԱԺԻՆ (Library) */}
             {activeTab === 'library' && (
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                  <h3 style={{ margin: 0 }}>{t.tabLibrary}</h3>
-                  {session && !isPublicView && (
-                    <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                {session && !isPublicView && (
+                  <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+                    <label className="neon-btn" style={{ padding: '10px 16px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
                       <Upload size={16} /> {t.uploadLibraryBtn}
-                      <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={(e) => handleFileUpload(e, 'library')} style={{ display: 'none' }} />
+                      <input
+                        type="file"
+                        accept="image/*,.pdf,.doc,.docx,.txt"
+                        onChange={(e) => handleFileUpload(e, 'library')}
+                        style={{ display: 'none' }}
+                      />
                     </label>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {profile.library.length === 0 ? (
-                  <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
+                  <p style={{ textAlign: 'center', opacity: 0.6, marginTop: '40px' }}>{t.noFiles}</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {profile.library.map((item, idx) => (
-                      <div key={idx} className="glass-input" style={{ padding: '12px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', position: 'relative', overflow: 'hidden' }}>
+                    {profile.library.map((item, index) => {
+                      const shareKey = `lib-${index}`;
+                      const isSharing = activeShareIndex === shareKey;
+                      const encodedUrl = encodeURIComponent(item.url);
+                      const encodedTitle = encodeURIComponent(item.name);
 
-                        {/* 📁 Ֆայլի նշանը և անունը (minWidth: 0-ն և textOverflow-ն ապահովում են կետիկներով կրճատումը) */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
-                          <FileText size={18} color="var(--primary-color)" style={{ flexShrink: 0 }} />
-                          <span style={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            display: 'block',
-                            width: '100%',
-                            fontSize: '14px'
-                          }}>
+                      return (
+                        <div key={index} className="glass-input" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', position: 'relative', overflow: 'visible' }}>
+                          <span style={{ fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: '15px', flex: 1 }}>
                             {item.name}
                           </span>
-                        </div>
 
-                        {/* Կոճակներ (Բացել, Կիսվել, Հեռացնել) */}
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
-                          <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <ExternalLink size={14} /> {t.openBtn}
-                          </a>
-                          <button
-                            onClick={() => setActiveShareIndex(activeShareIndex === idx ? null : idx)}
-                            className="neon-btn"
-                            style={{ padding: '6px 10px', fontSize: '12px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
-                          >
-                            <Share2 size={16} />
-                          </button>
-                          {session && !isPublicView && (
-                            <button onClick={() => handleDeleteItem(idx, 'library')} className="neon-btn" style={{ padding: '6px 10px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
-                              <Trash2 size={16} />
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0, position: 'relative' }}>
+                            {/* Կիսվելու կոճակ */}
+                            <button
+                              onClick={() => setActiveShareIndex(isSharing ? null : shareKey)}
+                              className="neon-btn"
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '12px',
+                                background: isSharing ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+                                borderColor: isSharing ? '#a855f7' : 'var(--primary-color)'
+                              }}
+                              title="Կիսվել"
+                            >
+                              <Share2 size={14} />
                             </button>
-                          )}
-                        </div>
 
-                        {activeShareIndex === idx && (
-                          <div style={{ width: '100%', marginTop: '10px', padding: '12px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--card-border)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', opacity: 0.8 }}>
-                              <span>{t.shareWithLabel || 'Կիսվել՝'}</span>
-                              <X size={16} style={{ cursor: 'pointer' }} onClick={() => setActiveShareIndex(null)} />
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#25D366' }}>WhatsApp</a>
-                              <a href={`https://t.me/share/url?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#229ED9' }}>Telegram</a>
-                              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#0a66c2' }}>LinkedIn</a>
-                              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(item.url)}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#1877f2' }}>Facebook</a>
-                            </div>
+                            {/* Բացվող անիմացիոն մենյու (Absolute դիրքով, որը չի հրում այլ կոճակները) */}
+                            {isSharing && (
+                              <div style={{
+                                position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 999,
+                                padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '180px',
+                                background: 'rgba(15, 23, 42, 0.92)',
+                                backdropFilter: 'blur(16px)',
+                                WebkitBackdropFilter: 'blur(16px)',
+                                border: '1px solid rgba(168, 85, 247, 0.4)',
+                                borderRadius: '14px',
+                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(168, 85, 247, 0.2)',
+                                animation: 'fadeInScale 0.25s ease-in-out'
+                              }}>
+                                <div style={{ fontSize: '11px', fontWeight: '600', color: '#a855f7', marginBottom: '2px', paddingBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                  Կիսվել հղումով
+                                </div>
+                                <a href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <MessageCircle size={15} color="#22c55e" /> WhatsApp
+                                </a>
+                                <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <Send size={15} color="#38bdf8" /> Telegram
+                                </a>
+                                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <Globe size={15} color="#60a5fa" /> Facebook
+                                </a>
+                                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <Share2 size={15} color="#818cf8" /> LinkedIn
+                                </a>
+                                <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <FileText size={15} color="#f43f5e" /> Email
+                                </a>
+                              </div>
+                            )}
+
+                            <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none' }}>
+                              <ExternalLink size={14} /> {t.openBtn}
+                            </a>
+
+                            {session && !isPublicView && (
+                              <button onClick={() => handleDeleteItem(index, 'library')} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             )}
 
-          {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐ */}
-          {activeTab === 'certificates' && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                <h3 style={{ margin: 0 }}>{t.tabCertificates}</h3>
+            {/* 4. ՍԵՐՏԻՖԻԿԱՏՆԵՐԻ ԲԱԺԻՆ (Certificates) */}
+            {activeTab === 'certificates' && (
+              <div>
                 {session && !isPublicView && (
-                  <label className="neon-btn" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                    <Upload size={16} /> {t.uploadCertBtn}
-                    <input type="file" accept="image/*,.pdf" onChange={(e) => handleFileUpload(e, 'certificates')} style={{ display: 'none' }} />
-                  </label>
+                  <div style={{ marginBottom: '20px', textAlign: 'right' }}>
+                    <label className="neon-btn" style={{ padding: '10px 16px', display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                      <Award size={16} /> {t.uploadCertBtn}
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleFileUpload(e, 'certificates')}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  </div>
+                )}
+
+                {profile.certificates.length === 0 ? (
+                  <p style={{ textAlign: 'center', opacity: 0.6, marginTop: '40px' }}>{t.noFiles}</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {profile.certificates.map((item, index) => {
+                      const shareKey = `cert-${index}`;
+                      const isSharing = activeShareIndex === shareKey;
+                      const encodedUrl = encodeURIComponent(item.url);
+                      const encodedTitle = encodeURIComponent(item.name);
+
+                      return (
+                        <div key={index} className="glass-input" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', position: 'relative', overflow: 'visible' }}>
+                          <span style={{ fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: '15px', flex: 1 }}>
+                            {item.name}
+                          </span>
+
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexShrink: 0, position: 'relative' }}>
+                            {/* Կիսվելու կոճակ */}
+                            <button
+                              onClick={() => setActiveShareIndex(isSharing ? null : shareKey)}
+                              className="neon-btn"
+                              style={{
+                                padding: '6px 12px',
+                                fontSize: '12px',
+                                background: isSharing ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+                                borderColor: isSharing ? '#a855f7' : 'var(--primary-color)'
+                              }}
+                              title="Կիսվել"
+                            >
+                              <Share2 size={14} />
+                            </button>
+
+                            {/* Բացվող անիմացիոն մենյու */}
+                            {isSharing && (
+                              <div style={{
+                                position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 999,
+                                padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '180px',
+                                background: 'rgba(15, 23, 42, 0.92)',
+                                backdropFilter: 'blur(16px)',
+                                WebkitBackdropFilter: 'blur(16px)',
+                                border: '1px solid rgba(168, 85, 247, 0.4)',
+                                borderRadius: '14px',
+                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(168, 85, 247, 0.2)',
+                                animation: 'fadeInScale 0.25s ease-in-out'
+                              }}>
+                                <div style={{ fontSize: '11px', fontWeight: '600', color: '#a855f7', marginBottom: '2px', paddingBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                  Կիսվել հղումով
+                                </div>
+                                <a href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <MessageCircle size={15} color="#22c55e" /> WhatsApp
+                                </a>
+                                <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <Send size={15} color="#38bdf8" /> Telegram
+                                </a>
+                                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <Globe size={15} color="#60a5fa" /> Facebook
+                                </a>
+                                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <Share2 size={15} color="#818cf8" /> LinkedIn
+                                </a>
+                                <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} style={{ fontSize: '13px', color: '#f8fafc', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 6px', borderRadius: '6px', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                  <FileText size={15} color="#f43f5e" /> Email
+                                </a>
+                              </div>
+                            )}
+
+                            <a href={item.url} target="_blank" rel="noreferrer" className="neon-btn" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none' }}>
+                              <ExternalLink size={14} /> {t.openBtn}
+                            </a>
+
+                            {session && !isPublicView && (
+                              <button onClick={() => handleDeleteItem(index, 'certificates')} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
-
-              {profile.certificates.length === 0 ? (
-                <p style={{ opacity: 0.7, textAlign: 'center', padding: '30px' }}>{t.noFiles}</p>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '15px' }}>
-                  {profile.certificates.map((cert, idx) => (
-                    <div key={idx} className="glass-input" style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-                      <img src={cert.url} alt="Cert" style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '10px' }} />
-                      <span style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</span>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '5px' }}>
-                        <a href={cert.url} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
-                          <ExternalLink size={12} /> {t.openBtn}
-                        </a>
-                        {session && !isPublicView && (
-                          <button onClick={() => handleDeleteItem(idx, 'certificates')} className="neon-btn" style={{ padding: '4px 8px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            )}
 
         </div>
       )}
