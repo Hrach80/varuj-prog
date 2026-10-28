@@ -368,7 +368,8 @@ export default function App() {
             WebkitBackdropFilter: 'blur(10px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 99999,
-            padding: '20px',
+            padding: '12px',
+            boxSizing: 'border-box',
             animation: 'fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
             cursor: 'pointer'
           }}
@@ -376,16 +377,20 @@ export default function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              width: '100%', maxWidth: '480px',
-              background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+              width: '100%',
+              maxWidth: '440px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98))',
               border: '1.5px solid rgba(20, 184, 166, 0.5)',
-              borderRadius: '24px',
-              padding: '28px',
+              borderRadius: '20px',
+              padding: '20px',
+              boxSizing: 'border-box',
               position: 'relative',
               boxShadow: '0 25px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(20, 184, 166, 0.25)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px',
+              gap: '14px',
               cursor: 'default'
             }}
           >
@@ -393,8 +398,8 @@ export default function App() {
             <div style={{
               background: 'rgba(20, 184, 166, 0.15)',
               border: '1.5px solid rgba(20, 184, 166, 0.4)',
-              borderRadius: '14px',
-              padding: '14px',
+              borderRadius: '12px',
+              padding: '12px',
               textAlign: 'center',
               color: '#2dd4bf',
               fontWeight: '600',
@@ -402,25 +407,25 @@ export default function App() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              fontSize: '15px',
+              fontSize: '14px',
               boxShadow: '0 0 15px rgba(20, 184, 166, 0.15)'
             }}>
               <Share2 size={18} /> Share My Public Profile
             </div>
 
             <div>
-              <p style={{ fontSize: '13px', opacity: 0.8, marginBottom: '8px', color: '#cbd5e1' }}>
+              <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '6px', color: '#cbd5e1' }}>
                 Your public portfolio link:
               </p>
 
               {/* Հղման դաշտ և Copy կոճակ */}
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <input
                   type="text"
                   readOnly
                   value={`${window.location.origin}${window.location.pathname}?user=${session?.user?.id}`}
                   className="glass-input"
-                  style={{ width: '100%', fontSize: '12px', background: 'rgba(0,0,0,0.4)', padding: '10px 14px' }}
+                  style={{ flex: 1, minWidth: '180px', fontSize: '11px', background: 'rgba(0,0,0,0.4)', padding: '10px 12px', boxSizing: 'border-box' }}
                 />
                 <button
                   onClick={() => {
@@ -429,7 +434,7 @@ export default function App() {
                     setTimeout(() => setCopied(false), 2000);
                   }}
                   className="neon-btn"
-                  style={{ padding: '10px 18px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  style={{ padding: '10px 14px', fontSize: '12px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
                   {copied ? <Check size={16} /> : <Copy size={16} />}
                   {copied ? 'Copied' : 'Copy'}
@@ -446,32 +451,32 @@ export default function App() {
               return (
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                  gap: '10px',
-                  marginTop: '4px'
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '8px',
+                  marginTop: '2px'
                 }}>
                   {/* WhatsApp */}
-                  <a href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(34, 197, 94, 0.15)', borderColor: '#22c55e', color: '#4ade80', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <a href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 8px', background: 'rgba(34, 197, 94, 0.15)', borderColor: '#22c55e', color: '#4ade80', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' }}>
                     <MessageCircle size={16} color="#22c55e" /> WhatsApp
                   </a>
                   {/* Viber */}
-                  <a href={`viber://forward?text=${encodedTitle}%20${encodedUrl}`} className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(114, 95, 209, 0.15)', borderColor: '#735fd1', color: '#a78bfa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <a href={`viber://forward?text=${encodedTitle}%20${encodedUrl}`} className="neon-btn" style={{ fontSize: '12px', padding: '10px 8px', background: 'rgba(114, 95, 209, 0.15)', borderColor: '#735fd1', color: '#a78bfa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' }}>
                     <Phone size={16} color="#a78bfa" /> Viber
                   </a>
                   {/* Telegram */}
-                  <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(56, 189, 248, 0.15)', borderColor: '#38bdf8', color: '#38bdf8', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 8px', background: 'rgba(56, 189, 248, 0.15)', borderColor: '#38bdf8', color: '#38bdf8', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' }}>
                     <Send size={16} color="#38bdf8" /> Telegram
                   </a>
                   {/* LinkedIn */}
-                  <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(10, 102, 194, 0.15)', borderColor: '#0a66c2', color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 8px', background: 'rgba(10, 102, 194, 0.15)', borderColor: '#0a66c2', color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' }}>
                     <Share2 size={16} color="#60a5fa" /> LinkedIn
                   </a>
                   {/* Facebook */}
-                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(66, 103, 178, 0.15)', borderColor: '#4267B2', color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" className="neon-btn" style={{ fontSize: '12px', padding: '10px 8px', background: 'rgba(66, 103, 178, 0.15)', borderColor: '#4267B2', color: '#60a5fa', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' }}>
                     <Globe size={16} color="#60a5fa" /> Facebook
                   </a>
                   {/* Email */}
-                  <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} className="neon-btn" style={{ fontSize: '12px', padding: '10px 12px', background: 'rgba(244, 63, 94, 0.15)', borderColor: '#f43f5e', color: '#fb7185', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} className="neon-btn" style={{ fontSize: '12px', padding: '10px 8px', background: 'rgba(244, 63, 94, 0.15)', borderColor: '#f43f5e', color: '#fb7185', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' }}>
                     <FileText size={16} color="#fb7185" /> Email
                   </a>
                 </div>
@@ -543,7 +548,7 @@ export default function App() {
               <button
                 onClick={() => setShowShareModal(!showShareModal)}
                 className="neon-btn"
-                style={{ width: '100%', justifyContent: 'center', padding: '12px', gap: '10px', fontSize: '14px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
+                style={{ width: '100%', justifyContent: 'center', padding: '5px', gap: '5px', fontSize: '12px', background: 'linear-gradient(135deg, #0d9488 100%, #115e59 0%)' }}
               >
                 <Share2 size={18} /> 🔗 {t.sharePublicProfile}
               </button>
