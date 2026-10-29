@@ -14,7 +14,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-
+  const [isEditingContact, setIsEditingContact] = useState(false);
   const [lang, setLang] = useState('am');
   const [theme, setTheme] = useState('dark');
   const t = translations[lang];
@@ -121,7 +121,28 @@ export default function App() {
     }
     setLoading(false);
   };
+  const handleSaveProfile = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles') // կամ ձեր աղյուսակի անունը
+        .update({
+          phone: profile.phone,
+          email: profile.email,
+          telegram: profile.telegram,
+          whatsapp: profile.whatsapp,
+          instagram: profile.instagram,
+          linkedin: profile.linkedin,
+          facebook: profile.facebook,
+          map_url: profile.map_url
+        })
+        .eq('id', session.user.id);
 
+      if (error) throw error;
+      console.log('Profile saved successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error.message);
+    }
+  };
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -678,46 +699,151 @@ export default function App() {
                 )}
               </div>
             )}
-          {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ */}
+            {/* 2. ԿՈՆՏԱԿՏՆԵՐ ԵՎ ՍՈՑՑԱՆՑԵՐ */}
             {activeTab === 'contact' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                {/* Կոնտակտային տվյալների ցուցադրում / հղումներ */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    {profile.phone ? (
-                      <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                        <Phone size={18} color="var(--primary-color)" /> {t.callLabel}: {profile.phone}
-                      </a>
-                    ) : isPublicView && <span style={{ opacity: 0.6, fontSize: '13px' }}>Հեռախոսահամար նշված չէ</span>}
-
-                    {profile.telegram && (
-                      <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
-                      </a>
-                    )}
-                    {profile.whatsapp && (
-                      <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
-                        <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
-                      </a>
-                    )}
-                    {profile.instagram && (
-                      <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Globe size={18} color="var(--primary-color)" /> Instagram
-                      </a>
-                    )}
-                    {profile.linkedin && (
-                      <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Share2 size={18} color="var(--primary-color)" /> LinkedIn
-                      </a>
-                    )}
-                    {profile.facebook && (
-                      <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
-                        <Globe size={18} color="var(--primary-color)" /> Facebook
-                      </a>
-                    )}
+                {/* Խմբագրելու/Պահպանելու կոճակը (մուտք գործած և ոչ հանրային տեսքի դեպքում) */}
+                {session && !isPublicView && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-10px' }}>
+                    <button
+                      onClick={() => {
+                        if (isEditingContact) {
+                          handleSaveProfile();
+                        }
+                        setIsEditingContact(!isEditingContact);
+                      }}
+                      className="neon-btn"
+                      style={{ padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      {isEditingContact ? 'Save Contacts' : 'Edit Contacts'}
+                    </button>
                   </div>
-                </div>
+                )}
+
+                {/* Եթե խմբագրման ռեժիմում է */}
+                {isEditingContact && session && !isPublicView ? (
+                  <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <h3 style={{ color: 'var(--primary-color)', fontSize: '15px', marginBottom: '4px' }}>Խմբագրել կոնտակտները</h3>
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>Հեռախոսահամար</label>
+                    <input
+                      type="text"
+                      value={profile.phone || ''}
+                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    {/* Ավելացված Email-ի խմբագրման դաշտ */}
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>Էլ․ հասցե (Email)</label>
+                    <input
+                      type="email"
+                      value={profile.email || ''}
+                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>Telegram (օրինակ՝ username)</label>
+                    <input
+                      type="text"
+                      value={profile.telegram || ''}
+                      onChange={(e) => setProfile({ ...profile, telegram: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>WhatsApp</label>
+                    <input
+                      type="text"
+                      value={profile.whatsapp || ''}
+                      onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>Instagram հղում կամ անուն</label>
+                    <input
+                      type="text"
+                      value={profile.instagram || ''}
+                      onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>LinkedIn հղում</label>
+                    <input
+                      type="text"
+                      value={profile.linkedin || ''}
+                      onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>Facebook հղում</label>
+                    <input
+                      type="text"
+                      value={profile.facebook || ''}
+                      onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+
+                    <label style={{ fontSize: '12px', opacity: 0.8 }}>Google Map (iframe կամ հղում)</label>
+                    <input
+                      type="text"
+                      value={profile.map_url || ''}
+                      onChange={(e) => setProfile({ ...profile, map_url: e.target.value })}
+                      className="glass-input"
+                      style={{ padding: '8px 12px', fontSize: '13px' }}
+                    />
+                  </div>
+                ) : (
+                  /* Կոնտակտային տվյալների ցուցադրում / հղումներ (ներառյալ Email-ը) */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div className="glass-input" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                      {profile.phone ? (
+                        <a href={`tel:${profile.phone}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                          <Phone size={18} color="var(--primary-color)" /> {t.callLabel || 'Phone'}: {profile.phone}
+                        </a>
+                      ) : isPublicView && <span style={{ opacity: 0.6, fontSize: '13px' }}>Հեռախոսահամար նշված չէ</span>}
+
+                      {/* Ավելացված Email-ի ցուցադրման հղում */}
+                      {profile.email && (
+                        <a href={`mailto:${profile.email}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                          <FileText size={18} color="var(--primary-color)" /> Email: {profile.email}
+                        </a>
+                      )}
+
+                      {profile.telegram && (
+                        <a href={`https://t.me/${profile.telegram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                          <Send size={18} color="var(--primary-color)" /> Telegram: @{profile.telegram}
+                        </a>
+                      )}
+                      {profile.whatsapp && (
+                        <a href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-color)', fontWeight: '600' }}>
+                          <MessageCircle size={18} color="var(--primary-color)" /> WhatsApp: {profile.whatsapp}
+                        </a>
+                      )}
+                      {profile.instagram && (
+                        <a href={profile.instagram.startsWith('http') ? profile.instagram : `https://instagram.com/${profile.instagram}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                          <Globe size={18} color="var(--primary-color)" /> Instagram
+                        </a>
+                      )}
+                      {profile.linkedin && (
+                        <a href={profile.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                          <Share2 size={18} color="var(--primary-color)" /> LinkedIn
+                        </a>
+                      )}
+                      {profile.facebook && (
+                        <a href={profile.facebook} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary-color)', fontWeight: '600' }}>
+                          <Globe size={18} color="var(--primary-color)" /> Facebook
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Քարտեզի ցուցադրում */}
                 {profile.map_url && (
@@ -936,12 +1062,13 @@ export default function App() {
                     onClick={() => setSelectedCertificate(null)}
                     style={{
                       position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-                      background: 'rgba(10, 15, 30, 0.85)',
+                      background: 'rgba(10, 15, 30, 0.88)',
                       backdropFilter: 'blur(12px)',
                       WebkitBackdropFilter: 'blur(12px)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       zIndex: 99999,
-                      padding: '20px',
+                      padding: '10px',
+                      boxSizing: 'border-box',
                       animation: 'fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                       cursor: 'pointer'
                     }}
@@ -949,12 +1076,14 @@ export default function App() {
                     <div
                       onClick={(e) => e.stopPropagation()}
                       style={{
-                        maxWidth: '92vw',
-                        maxHeight: '92vh',
-                        background: 'rgba(15, 23, 42, 0.95)',
+                        width: '100%',
+                        maxWidth: '750px',
+                        maxHeight: '90vh',
+                        background: 'rgba(15, 23, 42, 0.98)',
                         border: '1.5px solid rgba(20, 184, 166, 0.5)',
                         borderRadius: '20px',
                         padding: '16px',
+                        boxSizing: 'border-box',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '12px',
@@ -963,28 +1092,45 @@ export default function App() {
                         cursor: 'default'
                       }}
                     >
+                      {/* Վերնագիր և փակելու կոճակ */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#f8fafc', fontSize: '14px', fontWeight: '600', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                        <span>{selectedCertificate.name}</span>
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: '10px' }}>
+                          {selectedCertificate.name}
+                        </span>
                         <button
                           onClick={() => setSelectedCertificate(null)}
-                          style={{ background: 'transparent', border: 'none', color: '#f8fafc', cursor: 'pointer', fontSize: '18px', padding: '0 4px' }}
+                          style={{ background: 'transparent', border: 'none', color: '#f8fafc', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', flexShrink: 0 }}
                         >
                           ✕
                         </button>
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                      {/* Նկարի կամ PDF-ի ճկուն բովանդակություն */}
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', overflow: 'hidden', flex: 1 }}>
                         {selectedCertificate.url.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
                           <img
                             src={selectedCertificate.url}
                             alt={selectedCertificate.name}
-                            style={{ maxWidth: '100%', maxHeight: '78vh', objectFit: 'contain', borderRadius: '12px' }}
+                            style={{
+                              width: '100%',
+                              height: 'auto',
+                              maxHeight: '72vh',
+                              objectFit: 'contain',
+                              borderRadius: '12px',
+                              boxSizing: 'border-box'
+                            }}
                           />
                         ) : (
                           <iframe
                             src={selectedCertificate.url}
                             title={selectedCertificate.name}
-                            style={{ width: '80vw', height: '78vh', border: 'none', borderRadius: '12px' }}
+                            style={{
+                              width: '100%',
+                              height: '72vh',
+                              border: 'none',
+                              borderRadius: '12px',
+                              boxSizing: 'border-box'
+                            }}
                           />
                         )}
                       </div>
