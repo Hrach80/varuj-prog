@@ -41,7 +41,14 @@ export const translations = {
         instagramPlaceholder: 'Instagram հղում',
         linkedinPlaceholder: 'LinkedIn հղում',
         facebookPlaceholder: 'Facebook հղում',
-        mapPlaceholder: 'Google Maps հղում կամ iframe'
+        mapPlaceholder: 'Google Maps հղում կամ iframe',
+        editProfile: "Խմբագրել պրոֆիլը",
+        saveProfile: "Պահպանել պրոֆիլը",
+        editContacts: "Խմբագրել կոնտակտները",
+        saveContacts: "Պահպանել կոնտակտները",
+        mapLabel: "Google Map (iframe կամ հղում)",
+        mapPlaceholder: "Օրինակ՝ https://maps.app.goo.gl/... կամ iframe կոդ",
+        mapHint: "Հուշում. Կարող եք տեղադրել Google Maps-ի հղումը (Share URL) կամ Embed <iframe> կոդը։"
     },
     en: {
         themeNight: 'Night',
@@ -85,7 +92,15 @@ export const translations = {
         instagramPlaceholder: 'Instagram Link',
         linkedinPlaceholder: 'LinkedIn Link',
         facebookPlaceholder: 'Facebook Link',
-        mapPlaceholder: 'Google Maps Link or iframe'
+        mapPlaceholder: 'Google Maps Link or iframe',
+        editProfile: "Edit Profile",
+        saveProfile: "Save Profile",
+        editContacts: "Edit Contacts",
+        saveContacts: "Save Contacts",
+        mapLabel: "Google Map (iframe or link)",
+        mapPlaceholder: "Example: https://maps.app.goo.gl/... or iframe code",
+        mapHint: "Tip: You can paste either the Google Maps Share URL or the Embed <iframe> code."
+        
     },
     ru: {
         themeNight: 'Ночь',
@@ -129,6 +144,13 @@ export const translations = {
         instagramPlaceholder: 'Ссылка Instagram',
         linkedinPlaceholder: 'Ссылка LinkedIn',
         facebookPlaceholder: 'Ссылка Facebook',
-        mapPlaceholder: 'Ссылка Google Maps или iframe'
+        mapPlaceholder: 'Ссылка Google Maps или iframe',
+        editProfile: "Редактировать профиль",
+        saveProfile: "Сохранить профиль",
+        editContacts: "Редактировать контакты",
+        saveContacts: "Сохранить контакты",
+        mapLabel: "Google Map (iframe или ссылка)",
+        mapPlaceholder: "Пример: https://maps.app.goo.gl/... или iframe код",
+        mapHint: "Подсказка: Вы можете вставить либо ссылку из Google Maps (Share), либо код Embed <iframe>."
     }
 };
