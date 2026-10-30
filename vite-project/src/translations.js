@@ -48,7 +48,16 @@ export const translations = {
         saveContacts: "Պահպանել կոնտակտները",
         mapLabel: "Google Map (iframe կամ հղում)",
         mapPlaceholder: "Օրինակ՝ https://maps.app.goo.gl/... կամ iframe կոդ",
-        mapHint: "Հուշում. Կարող եք տեղադրել Google Maps-ի հղումը (Share URL) կամ Embed <iframe> կոդը։"
+        mapHint: "Հուշում. Կարող եք տեղադրել Google Maps-ի հղումը (Share URL) կամ Embed <iframe> կոդը։",
+        editProfileTitle: "Խմբագրել պրոֆիլը",
+        nameLabel: "Անուն Ազգանուն",
+        specialtyLabel: "Մասնագիտություն",
+        universityLabel: "Համալսարան / Հաստատություն",
+        bioLabel: "Կենսագրություն / Bio",
+        namePlaceholder: "Մուտքագրեք անուն ազգանունը",
+        specialtyPlaceholder: "Մուտքագրեք մասնագիտությունը",
+        universityPlaceholder: "Մուտքագրեք համալսարանը",
+        bioPlaceholder: "Մուտքագրեք կենսագրությունը..."
     },
     en: {
         themeNight: 'Night',
@@ -99,7 +108,16 @@ export const translations = {
         saveContacts: "Save Contacts",
         mapLabel: "Google Map (iframe or link)",
         mapPlaceholder: "Example: https://maps.app.goo.gl/... or iframe code",
-        mapHint: "Tip: You can paste either the Google Maps Share URL or the Embed <iframe> code."
+        mapHint: "Tip: You can paste either the Google Maps Share URL or the Embed <iframe> code.",
+        editProfileTitle: "Edit Profile",
+        nameLabel: "Full Name",
+        specialtyLabel: "Specialty",
+        universityLabel: "University / Institution",
+        bioLabel: "Biography / Bio",
+        namePlaceholder: "Enter full name",
+        specialtyPlaceholder: "Enter specialty",
+        universityPlaceholder: "Enter university",
+        bioPlaceholder: "Enter biography..."
         
     },
     ru: {
@@ -151,6 +169,15 @@ export const translations = {
         saveContacts: "Сохранить контакты",
         mapLabel: "Google Map (iframe или ссылка)",
         mapPlaceholder: "Пример: https://maps.app.goo.gl/... или iframe код",
-        mapHint: "Подсказка: Вы можете вставить либо ссылку из Google Maps (Share), либо код Embed <iframe>."
+        mapHint: "Подсказка: Вы можете вставить либо ссылку из Google Maps (Share), либо код Embed <iframe>.",
+        editProfileTitle: "Редактировать профиль",
+        nameLabel: "ФИО",
+        specialtyLabel: "Специальность",
+        universityLabel: "Университет / Учреждение",
+        bioLabel: "Биография / Bio",
+        namePlaceholder: "Введите ФИО",
+        specialtyPlaceholder: "Введите специальность",
+        universityPlaceholder: "Введите университет",
+        bioPlaceholder: "Введите биографию..."
     }
 };
